@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>TinyNature</title>
+
+  <!-- Preconnect per performance -->
+  <link rel="preconnect" href="https://storage.googleapis.com" crossorigin="anonymous">
+  <link rel="preconnect" href="https://esm.sh" crossorigin="anonymous">
+
+  <!-- Preload font Restora -->
+  <link rel="preload" href="../fonts/restora-extra-light.otf" as="font" type="font/otf" crossorigin>
+
+  <!-- Font Restora per loading text -->
+  <style>
+    @font-face {
+      font-family: 'Restora';
+      src: url('../fonts/restora-extra-light.otf') format('opentype');
+      font-weight: 200;
+      font-style: normal;
+      font-display: block; /* Blocca il rendering finché il font non è caricato */
+    }
+  </style>
+
+  <!-- Preload assets critici -->
+  <link rel="preload" href="https://storage.googleapis.com/tinynatureassets/MadreNatura.glb" as="fetch" crossorigin="anonymous">
+  <link rel="preload" href="https://storage.googleapis.com/tinynatureassets/TINYBACKGROUND%20light.png" as="image" crossorigin="anonymous">
+
+  <!-- Three.js Import Map -->
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "https://esm.sh/three@0.182.0",
+      "three/addons/": "https://esm.sh/three@0.182.0/addons/"
+    }
+  }
+  </script>
+
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html, body {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background: #ffffff;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    }
+
+    #root {
+      width: 100%;
+      height: 100%;
+      position: relative;
+    }
+
+    canvas {
+      display: block;
+      width: 100%;
+      height: 100%;
+    }
+
+    /* Loading screen */
+    #loading {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: #ffffff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      transition: opacity 1.2s ease-out;
+    }
+
+    #loading.hidden {
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .welcome-text {
+      color: #000000;
+      font-family: 'Restora', 'Playfair Display', serif;
+      font-size: clamp(3.5rem, 7vw, 9rem);
+      font-weight: 500;
+      line-height: 0.85;
+      text-align: center;
+      padding: 0 1rem;
+    }
+
+    /* Loading bar */
+    .loading-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 2rem;
+    }
+
+    .loading-bar-wrapper {
+      width: 120px;
+      height: 2px;
+      background: rgba(0, 0, 0, 0.1);
+      border-radius: 1px;
+      overflow: hidden;
+    }
+
+    .loading-bar {
+      height: 100%;
+      width: 0%;
+      background: #000000;
+      border-radius: 1px;
+      transition: width 0.3s ease-out;
+    }
+  </style>
+</head>
+<body>
+  <!-- Loading Screen -->
+  <div id="loading">
+    <div class="loading-container">
+      <span class="welcome-text">Welcome to the world of<br><span style="font-style: italic;">tinyPeople</span></span>
+      <div class="loading-bar-wrapper">
+        <div class="loading-bar" id="loading-bar"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Three.js Canvas Container -->
+  <div id="root"></div>
+
+  <script>
+    // Blocca interazioni fino a caricamento completato
+    window.controlsDisabled = true;
+    window.sceneLoaded = false;
+
+    const blockEvent = (e) => {
+      if (!window.sceneLoaded) {
+        e.preventDefault();
+        e.stopPropagation();
+        return false;
+      }
+    };
+
+    ['mousedown', 'touchstart', 'pointerdown'].forEach(type => {
+      document.addEventListener(type, blockEvent, { capture: true, passive: false });
+    });
+
+    // Smooth loading progress system
+    const LoadingProgress = {
+      currentProgress: 0,
+      targetProgress: 0,
+      isComplete: false,
+      animationId: null,
+
+      // Avvia animazione smooth della barra
+      start() {
+        const bar = document.getElementById('loading-bar');
+        if (!bar) return;
+
+        const animate = () => {
+          if (this.isComplete) return;
+
+          // Se non abbiamo raggiunto il target, avvicinati gradualmente
+          if (this.currentProgress < this.targetProgress) {
+            // Velocità proporzionale alla distanza dal target
+            const speed = Math.max(0.3, (this.targetProgress - this.currentProgress) * 0.08);
+            this.currentProgress = Math.min(this.targetProgress, this.currentProgress + speed);
+          }
+          // Se siamo al target ma non completi, avanza lentamente (max 85%)
+          else if (this.targetProgress < 85 && !this.isComplete) {
+            this.currentProgress += 0.15; // Avanzamento lento automatico
+            this.targetProgress = Math.max(this.targetProgress, this.currentProgress);
+          }
+
+          // Limita a 90% finché non è veramente completo
+          const displayProgress = this.isComplete ? this.currentProgress : Math.min(this.currentProgress, 90);
+          bar.style.width = displayProgress + '%';
+
+          this.animationId = requestAnimationFrame(animate);
+        };
+
+        animate();
+      },
+
+      // Imposta un nuovo target (la barra si muoverà verso questo valore)
+      setTarget(progress) {
+        this.targetProgress = Math.max(this.targetProgress, progress);
+      },
+
+      // Completa al 100%
+      complete() {
+        this.isComplete = true;
+        this.targetProgress = 100;
+
+        const bar = document.getElementById('loading-bar');
+        if (bar) {
+          // Animazione finale veloce al 100%
+          const finalAnimation = () => {
+            if (this.currentProgress < 100) {
+              this.currentProgress += 2;
+              bar.style.width = Math.min(100, this.currentProgress) + '%';
+              requestAnimationFrame(finalAnimation);
+            }
+          };
+          finalAnimation();
+        }
+      },
+
+      stop() {
+        if (this.animationId) {
+          cancelAnimationFrame(this.animationId);
+        }
+      }
+    };
+
+    // Avvia subito l'animazione della progress bar
+    LoadingProgress.start();
+
+    // API per la scena
+    window.setLoadingProgress = function(progress) {
+      LoadingProgress.setTarget(progress);
+    };
+
+    window.enableControls = function() {
+      window.controlsDisabled = false;
+      window.sceneLoaded = true;
+
+      // Completa la barra al 100%
+      LoadingProgress.complete();
+
+      // Nascondi loading screen con dissolvenza
+      const loading = document.getElementById('loading');
+      if (loading) {
+        // Aspetta che la barra arrivi al 100%
+        setTimeout(() => {
+          loading.classList.add('hidden');
+          LoadingProgress.stop();
+          // Notifica la pagina parent DOPO che la loading è completamente scomparsa
+          setTimeout(() => {
+            loading.remove();
+            // Invia messaggio solo dopo che la dissolvenza è completa
+            if (window.parent !== window) {
+              window.parent.postMessage('sceneLoaded', '*');
+            }
+          }, 1200);
+        }, 300);
+      }
+    };
+  </script>
+
+  <!-- Three.js Scene -->
+  <script type="module" src="./assets/scene-v2.js"></script>
+</body>
+</html>

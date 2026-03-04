@@ -1,0 +1,13 @@
+name = "bridge-worker"
+main = "index.js"
+compatibility_date = "2024-01-01"
+account_id = "0a8105a906e5d5318a12a9cdd0699074"
+
+routes = [
+  { pattern = "tinypeople.ai/*", zone_id = "b86e3e073eec32a60421b5106a6eaf44" },
+  { pattern = "tinypeople.ai", zone_id = "b86e3e073eec32a60421b5106a6eaf44" }
+]
+
+[[kv_namespaces]]
+binding = "DECISIONS"
+id = "a486c7b32cc64ec0953cba7b56610b1d"

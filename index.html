@@ -1,0 +1,1539 @@
+<!-- v2 -->
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Nature - AI WhatsApp Assistant</title>
+  <meta name="description" content="Your personal AI assistant for appointments and productivity via WhatsApp.">
+  <link rel="icon" href="./favicon.png" type="image/png">
+  <link rel="preconnect" href="https://fonts.googleapis.com/">
+  <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin="anonymous">
+  <link rel="preconnect" href="https://storage.googleapis.com" crossorigin="anonymous">
+  <link rel="preconnect" href="https://esm.sh" crossorigin="anonymous">
+  <style>
+    /* Critical CSS - load immediately to prevent FOUC */
+    .full-viewport-height {
+      height: 100vh;
+    }
+
+    @supports (height: 100dvh) {
+      .full-viewport-height {
+        height: 100dvh;
+      }
+    }
+
+    /* Fullscreen iframe styling */
+    .fullscreen-iframe {
+      display: block;
+      width: 100vw;
+      height: 100vh;
+      border: none;
+      margin: 0;
+      padding: 0;
+    }
+  </style>
+  <style>
+    /* Force hide hamburger menu on desktop */
+    @media (min-width: 768px) {
+      #mobile-menu-button {
+        display: none !important;
+      }
+    }
+
+    /* Remove tap highlight and focus outline on mobile menu button */
+    #mobile-menu-button {
+      -webkit-tap-highlight-color: transparent;
+      outline: none;
+      background: transparent;
+    }
+    #mobile-menu-button:focus,
+    #mobile-menu-button:active {
+      outline: none;
+      box-shadow: none;
+      background: transparent;
+    }
+
+    /* Mobile menu animations — solo opacity, nessun transform per non rompere backdrop-filter */
+    #mobile-menu {
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.35s ease;
+    }
+
+    #mobile-menu .mobile-menu-transform-wrapper {
+      opacity: 0;
+      transition: opacity 0.35s ease;
+    }
+
+    #mobile-menu.active {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    #mobile-menu.active .mobile-menu-transform-wrapper {
+      opacity: 1;
+    }
+
+    /* Chiusura fluida */
+    #mobile-menu.closing {
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.25s ease;
+    }
+
+    #mobile-menu.closing .mobile-menu-transform-wrapper {
+      opacity: 0;
+      transition: opacity 0.2s ease;
+    }
+
+    /* Backdrop */
+    #mobile-menu-overlay {
+      opacity: 0;
+      transition: opacity 0.35s ease;
+    }
+
+    #mobile-menu.active #mobile-menu-overlay {
+      opacity: 1;
+    }
+
+    #mobile-menu.closing #mobile-menu-overlay {
+      opacity: 0;
+      transition: opacity 0.2s ease;
+    }
+
+    /* Stagger entrata link — solo opacity */
+    #mobile-menu .liquid-glass-effect-mobile nav > a {
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+
+    #mobile-menu.active .liquid-glass-effect-mobile nav > a {
+      opacity: 1;
+    }
+
+    #mobile-menu.active .liquid-glass-effect-mobile nav > a:nth-child(1) { transition-delay: 0.08s; }
+    #mobile-menu.active .liquid-glass-effect-mobile nav > a:nth-child(2) { transition-delay: 0.16s; }
+    #mobile-menu.active .liquid-glass-effect-mobile nav > a:nth-child(3) { transition-delay: 0.24s; }
+
+    /* Chiusura link */
+    #mobile-menu.closing .liquid-glass-effect-mobile nav > a {
+      opacity: 0;
+      transition: opacity 0.12s ease;
+      transition-delay: 0s;
+    }
+
+
+    /* Liquid Glass Effect — DEFAULT: blur glass (funziona ovunque) */
+    .liquid-glass-effect {
+      position: relative;
+      border-radius: 28px;
+      backdrop-filter: blur(40px) saturate(180%) brightness(1.05);
+      -webkit-backdrop-filter: blur(40px) saturate(180%) brightness(1.05);
+      background: linear-gradient(
+        135deg,
+        rgba(255, 255, 255, 0.25) 0%,
+        rgba(255, 255, 255, 0.12) 50%,
+        rgba(255, 255, 255, 0.2) 100%
+      );
+      border: 1px solid rgba(255, 255, 255, 0.35);
+      border-top-color: rgba(255, 255, 255, 0.5);
+      border-bottom-color: rgba(255, 255, 255, 0.15);
+      box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.4),
+        inset 0 -1px 0 rgba(0, 0, 0, 0.05),
+        inset 0 0 20px rgba(255, 255, 255, 0.1),
+        0 8px 32px rgba(0, 0, 0, 0.08),
+        0 2px 8px rgba(0, 0, 0, 0.04);
+    }
+
+    /* SVG displacement — attivato via JS solo su browser che lo supportano */
+    .svg-glass .liquid-glass-effect {
+      background: hsl(0 0% 100% / 0.05);
+      backdrop-filter: url(#liquid-glass) brightness(1.1) saturate(1.5);
+      -webkit-backdrop-filter: url(#liquid-glass) brightness(1.1) saturate(1.5);
+      border: none;
+      box-shadow:
+        0 0 2px 1px hsl(0 0% 50% / 0.15) inset,
+        0 0 10px 4px hsl(0 0% 50% / 0.1) inset,
+        0px 4px 16px rgba(17, 17, 26, 0.05),
+        0px 8px 24px rgba(17, 17, 26, 0.05),
+        0px 16px 56px rgba(17, 17, 26, 0.05),
+        0px 4px 16px rgba(17, 17, 26, 0.05) inset,
+        0px 8px 24px rgba(17, 17, 26, 0.05) inset,
+        0px 16px 56px rgba(17, 17, 26, 0.05) inset;
+    }
+
+    /* Riflesso luce sul bordo - solo con SVG glass */
+    .svg-glass .liquid-glass-effect::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: inherit;
+      padding: 1px;
+      background: linear-gradient(
+        170deg,
+        rgba(255, 255, 255, 0.6) 0%,
+        rgba(255, 255, 255, 0.25) 25%,
+        rgba(255, 255, 255, 0.05) 50%,
+        transparent 70%,
+        rgba(255, 255, 255, 0.08) 100%
+      );
+      -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+      -webkit-mask-composite: xor;
+      mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+      mask-composite: exclude;
+      pointer-events: none;
+      z-index: 2;
+    }
+
+    .liquid-glass-effect .nav-content-wrap {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      border-radius: inherit;
+    }
+
+    .liquid-glass-effect .liquid-glass-svg {
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      position: absolute;
+      inset: 0;
+    }
+
+    .liquid-glass-effect .nav-content {
+      position: relative;
+      z-index: 1;
+    }
+
+    /* Remove old glass-panel styles for navbar */
+    nav#navbar .glass-panel {
+      background: transparent;
+      border: none;
+      box-shadow: none;
+    }
+
+    /* Mobile menu glass — DEFAULT: blur glass */
+    .liquid-glass-effect-mobile {
+      position: relative;
+      backdrop-filter: blur(40px) saturate(200%) brightness(1.08);
+      -webkit-backdrop-filter: blur(40px) saturate(200%) brightness(1.08);
+      background: linear-gradient(
+        160deg,
+        rgba(255, 255, 255, 0.4) 0%,
+        rgba(255, 255, 255, 0.2) 40%,
+        rgba(255, 255, 255, 0.3) 100%
+      );
+      border: 1px solid rgba(255, 255, 255, 0.4);
+      border-top-color: rgba(255, 255, 255, 0.6);
+      border-bottom-color: rgba(255, 255, 255, 0.15);
+      box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.5),
+        inset 0 -1px 0 rgba(0, 0, 0, 0.06),
+        inset 0 0 30px rgba(255, 255, 255, 0.12),
+        0 12px 40px rgba(0, 0, 0, 0.12),
+        0 4px 12px rgba(0, 0, 0, 0.06);
+    }
+
+    /* SVG displacement — attivato via JS solo su browser che lo supportano */
+    .svg-glass .liquid-glass-effect-mobile {
+      background: hsl(0 0% 100% / 0.35);
+      backdrop-filter: url(#liquid-glass-mobile) brightness(1.15) saturate(1.3) blur(8px);
+      -webkit-backdrop-filter: url(#liquid-glass-mobile) brightness(1.15) saturate(1.3) blur(8px);
+      border: none;
+      box-shadow: none;
+    }
+
+    /* Riflesso luce — solo con SVG glass */
+    .svg-glass .liquid-glass-effect-mobile::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: inherit;
+      padding: 1.5px;
+      background: linear-gradient(
+        165deg,
+        rgba(255, 255, 255, 0.7) 0%,
+        rgba(255, 255, 255, 0.3) 20%,
+        rgba(255, 255, 255, 0.05) 45%,
+        transparent 65%,
+        rgba(255, 255, 255, 0.1) 100%
+      );
+      -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+      -webkit-mask-composite: xor;
+      mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+      mask-composite: exclude;
+      pointer-events: none;
+      z-index: 2;
+    }
+
+    /* Text sempre nero pieno per contrasto su sfondo sfocato */
+    nav#navbar a[href="#capabilities"],
+    nav#navbar a[href="#platforms"],
+    nav#navbar a:first-child {
+      color: #000000;
+    }
+
+    /* Navbar positioning */
+    .navbar-fixed {
+      position: fixed;
+      top: 24px;
+      left: 50%;
+      transform: translateX(-50%);
+      opacity: 0;
+      filter: blur(15px);
+      z-index: 9999;
+    }
+
+    /* Hero title */
+    .hero-title {
+      font-size: clamp(3.5rem, 7vw, 9rem);
+      line-height: 0.85;
+    }
+
+    /* Glass panel border radius */
+    .glass-panel-rounded {
+      border-radius: 28px;
+    }
+  </style>
+  <style>
+    /* Scroll animation container */
+    #scroll-animation-container {
+      height: 200vh;
+      /* 2 viewport heights: 1 for fade out + 1 margin */
+      position: relative;
+    }
+
+    /* Sticky iframe and title */
+    .sticky-hero {
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      width: 100%;
+    }
+
+    /* Title with transition - hidden initially during loading */
+    #hero-title {
+      opacity: 0;
+      filter: blur(0px);
+      transition: opacity 0.8s ease-out, filter 0.1s linear;
+    }
+
+    #hero-title.visible {
+      opacity: 1;
+    }
+
+    /* Navbar animation */
+    #navbar {
+      transition: opacity 0.1s linear, filter 0.1s linear;
+    }
+  </style>
+  <link rel="stylesheet" href="./css/root-DrZ2wtlP.css">
+</head>
+
+<body class="antialiased">
+  <!-- Scroll animation container -->
+  <div id="scroll-animation-container">
+    <div class="sticky-hero">
+      <div class="fixed inset-0 pointer-events-none flex items-center justify-center z-50">
+        <h1 id="hero-title" class="hero-title font-medium tracking-tight text-center text-white font-serif-title">
+          Welcome to the world of<br><span class="italic">tinyPeople</span>
+        </h1>
+      </div>
+      <iframe src="./dist/index.html" class="fullscreen-iframe" loading="eager" importance="high"></iframe>
+    </div>
+  </div>
+  <main
+    class="bg-[#FDFCF8] text-[#1C1C1C] min-h-screen selection:bg-stone-200 selection:text-stone-900 overflow-x-hidden">
+    <nav id="navbar" class="navbar-fixed">
+      <div class="liquid-glass-effect" style="position:relative;border-radius:28px;">
+        <div class="nav-content-wrap" style="width:100%;height:100%;overflow:hidden;border-radius:inherit;">
+          <div class="nav-content h-20 flex items-center justify-between px-5 sm:px-6 md:px-6 lg:px-6 gap-16 sm:gap-20 md:gap-24 lg:gap-24 xl:gap-24 w-auto md:w-full md:max-w-6xl lg:max-w-6xl xl:max-w-6xl 2xl:max-w-6xl">
+<a
+          class="text-lg sm:text-xl font-semibold tracking-tight flex items-center gap-3 sm:gap-4 md:gap-5 font-serif-title text-stone-900"
+          href="" data-discover="true"><svg class="w-8 h-8 sm:w-10 sm:h-10 rounded-full shadow-sm"
+            xmlns="http://www.w3.org/2000/svg" viewBox="0 0 432.02 432.02">
+            <defs>
+              <lineargradient id="nav-gradient" x1="33.29" y1="33.29" x2="398.73" y2="398.73"
+                gradientUnits="userSpaceOnUse">
+                <stop offset="0" stop-color="#cae1f4"></stop>
+                <stop offset="0" stop-color="#badcf4"></stop>
+                <stop offset="1" stop-color="#3fa4f4"></stop>
+              </lineargradient>
+            </defs>
+            <g>
+              <rect width="432.02" height="432.02" rx="113.66" ry="113.66" fill="url(#nav-gradient)"></rect>
+              <g fill="#fff">
+                <path
+                  d="M153.06,102.81c-7.23,0-13.09,50.68-13.09,113.2s5.86,113.2,13.09,113.2,13.09-50.68,13.09-113.2-5.86-113.2-13.09-113.2Z">
+                </path>
+                <ellipse cx="195.03" cy="187.9" rx="13.09" ry="59.96"></ellipse>
+                <ellipse cx="236.99" cy="247.71" rx="13.09" ry="54.79"></ellipse>
+                <path
+                  d="M278.96,97.84c-7.23,0-13.09,52.91-13.09,118.17s5.86,118.17,13.09,118.17,13.09-52.91,13.09-118.17-5.86-118.17-13.09-118.17Z">
+                </path>
+                <path
+                  d="M320.93,155.86c-7.23,0-13.09,26.93-13.09,60.15s5.86,60.15,13.09,60.15,13.09-26.93,13.09-60.15-5.86-60.15-13.09-60.15Z">
+                </path>
+                <path
+                  d="M111.09,144.42c-7.23,0-13.09,32.05-13.09,71.59s5.86,71.59,13.09,71.59,13.09-32.05,13.09-71.59-5.86-71.59-13.09-71.59Z">
+                </path>
+              </g>
+            </g>
+          </svg>tinyNature</a>
+        <div class="hidden md:flex items-center gap-6 lg:gap-6 xl:gap-6 text-sm font-medium text-stone-600"><a
+            href="#capabilities" class="hover:text-stone-900 transition-colors whitespace-nowrap">Capabilities</a><a
+            href="#platforms" class="hover:text-stone-900 transition-colors whitespace-nowrap">Platforms</a><a
+            href="https://wa.me/14242421336" target="_blank" rel="noopener noreferrer"
+            class="px-8 py-2.5 bg-stone-900 text-white rounded-full hover:bg-stone-800 transition-all transform hover:scale-[1.02] whitespace-nowrap flex-shrink-0">Early
+            Access</a>
+          </div>
+          <button id="mobile-menu-button"
+            class="md:hidden p-2 rounded-lg hover:bg-stone-100 transition-colors" aria-label="Menu">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+              stroke="currentColor" stroke-width="2" class="text-stone-900">
+              <line x1="3" y1="12" x2="21" y2="12"></line>
+              <line x1="3" y1="6" x2="21" y2="6"></line>
+              <line x1="3" y1="18" x2="21" y2="18"></line>
+            </svg>
+          </button>
+        </div>
+        <svg class="liquid-glass-svg" style="width:100%;height:100%;pointer-events:none;position:absolute;inset:0;" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <filter id="liquid-glass" color-interpolation-filters="sRGB">
+              <feImage id="liquid-feimage" x="0" y="0" width="100%" height="100%" result="map"></feImage>
+              <feDisplacementMap in="SourceGraphic" in2="map" id="redchannel" xChannelSelector="R" yChannelSelector="G" scale="-180" result="dispRed" />
+              <feColorMatrix in="dispRed" type="matrix" values="1 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 1 0" result="red" />
+              <feDisplacementMap in="SourceGraphic" in2="map" id="greenchannel" xChannelSelector="R" yChannelSelector="G" scale="-170" result="dispGreen" />
+              <feColorMatrix in="dispGreen" type="matrix" values="0 0 0 0 0  0 1 0 0 0  0 0 0 0 0  0 0 0 1 0" result="green" />
+              <feDisplacementMap in="SourceGraphic" in2="map" id="bluechannel" xChannelSelector="R" yChannelSelector="G" scale="-160" result="dispBlue" />
+              <feColorMatrix in="dispBlue" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 1 0 0  0 0 0 1 0" result="blue" />
+              <feBlend in="red" in2="green" mode="screen" result="rg" />
+              <feBlend in="rg" in2="blue" mode="screen" result="output" />
+              <feGaussianBlur in="output" stdDeviation="0.2" />
+            </filter>
+          </defs>
+        </svg>
+      </div>
+    </nav>
+    <!-- Mobile Menu Centered -->
+    <div id="mobile-menu"
+      class="fixed inset-0 z-50 flex items-center justify-center -mt-8 sm:-mt-10 md:-mt-12 p-3 sm:p-4">
+      <div class="fixed inset-0 bg-black/30" id="mobile-menu-overlay"></div>
+      <div class="mobile-menu-transform-wrapper relative w-full max-w-sm sm:max-w-md md:max-w-lg">
+        <div class="liquid-glass-effect-mobile rounded-2xl sm:rounded-3xl"
+          style="position:relative;border-radius:24px;">
+          <div class="nav-content-wrap-mobile" style="width:100%;height:100%;overflow:hidden;border-radius:inherit;">
+            <nav class="flex flex-col items-center gap-8 sm:gap-10 md:gap-12 px-8 sm:px-12 md:px-14 py-16 sm:py-20 md:py-24">
+              <a href="#capabilities"
+                class="text-base sm:text-lg font-medium text-stone-900 hover:text-stone-600 transition-colors text-center py-3 sm:py-4">Capabilities</a>
+              <a href="#platforms"
+                class="text-base sm:text-lg font-medium text-stone-900 hover:text-stone-600 transition-colors text-center py-3 sm:py-4">Platforms</a>
+              <a href="https://wa.me/14242421336" target="_blank" rel="noopener noreferrer"
+                class="px-6 sm:px-8 py-3 sm:py-4 bg-stone-900 text-white rounded-full hover:bg-stone-800 transition-all text-sm sm:text-base font-medium w-fit">Early
+                Access</a>
+            </nav>
+          </div>
+          <svg class="liquid-glass-svg-mobile" style="width:100%;height:100%;pointer-events:none;position:absolute;inset:0;" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <filter id="liquid-glass-mobile" color-interpolation-filters="sRGB">
+                <feImage id="liquid-feimage-mobile" x="0" y="0" width="100%" height="100%" result="map"></feImage>
+                <feDisplacementMap in="SourceGraphic" in2="map" id="redchannel-mobile" xChannelSelector="R" yChannelSelector="G" scale="-200" result="dispRed" />
+                <feColorMatrix in="dispRed" type="matrix" values="1 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 1 0" result="red" />
+                <feDisplacementMap in="SourceGraphic" in2="map" id="greenchannel-mobile" xChannelSelector="R" yChannelSelector="G" scale="-185" result="dispGreen" />
+                <feColorMatrix in="dispGreen" type="matrix" values="0 0 0 0 0  0 1 0 0 0  0 0 0 0 0  0 0 0 1 0" result="green" />
+                <feDisplacementMap in="SourceGraphic" in2="map" id="bluechannel-mobile" xChannelSelector="R" yChannelSelector="G" scale="-170" result="dispBlue" />
+                <feColorMatrix in="dispBlue" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 1 0 0  0 0 0 1 0" result="blue" />
+                <feBlend in="red" in2="green" mode="screen" result="rg" />
+                <feBlend in="rg" in2="blue" mode="screen" result="output" />
+                <feGaussianBlur in="output" stdDeviation="0.2" />
+              </filter>
+            </defs>
+          </svg>
+        </div>
+      </div>
+    </div>
+    <header class="relative pt-40 pb-20 lg:pt-52 lg:pb-32 px-6 overflow-hidden">
+
+      <div class="max-w-4xl mx-auto text-center" style="position: relative;z-index : 1;">
+        <div
+          class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-stone-100 border border-stone-200 mb-8 fade-in-up">
+          <span class="relative flex h-2 w-2"><span
+              class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span><span
+              class="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span></span><span
+            class="text-xs font-semibold uppercase tracking-wider text-stone-600 font-sans">Beta available now</span></div>
+        <p class="text-lg md:text-xl text-stone-600 max-w-2xl mx-auto leading-relaxed mb-12 fade-in-up delay-200">A
+          singular agentic intelligence that filters the noise, delegates the details, and returns your most valuable
+          asset: your time.</p>
+        <div class="flex flex-col sm:flex-row items-center justify-center gap-4 fade-in-up delay-300"><a
+            href="https://wa.me/14242421336" target="_blank" rel="noopener noreferrer"
+            class="w-full sm:w-auto px-8 py-4 bg-stone-900 text-white rounded-full font-medium hover:bg-stone-800 transition-all flex items-center justify-center gap-2 shadow-lg shadow-stone-200"><span>Begin
+              Dialogue</span><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+              fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+              class="lucide lucide-arrow-right w-4 h-4" aria-hidden="true">
+              <path d="M5 12h14"></path>
+              <path d="m12 5 7 7-7 7"></path>
+            </svg></a><a href="#automations"
+            class="w-full sm:w-auto px-8 py-4 bg-white border border-stone-200 text-stone-900 rounded-full font-medium hover:bg-stone-50 transition-all flex items-center justify-center gap-2"><svg
+              xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+              stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+              class="lucide lucide-workflow w-4 h-4" aria-hidden="true">
+              <rect width="8" height="8" x="3" y="3" rx="2"></rect>
+              <path d="M7 11v4a2 2 0 0 0 2 2h4"></path>
+              <rect width="8" height="8" x="13" y="13" rx="2"></rect>
+            </svg>Create Tailored Actions</a></div>
+      </div>
+    </header>
+    <section id="capabilities" class="py-24 bg-white border-t border-stone-100">
+      <div class="max-w-6xl mx-auto px-6">
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+          <div class="relative order-2 lg:order-1">
+            <div
+              class="relative mx-auto border-gray-800 bg-gray-800 border-[14px] rounded-[2.5rem] h-[600px] w-[320px] md:w-[350px] shadow-2xl flex flex-col overflow-hidden">
+              <div class="h-[32px] bg-gray-800 w-full absolute top-0 left-0 z-10 rounded-t-[2rem]"></div>
+              <div class="flex-1 bg-[#E5DDD5] flex flex-col relative overflow-hidden font-sans">
+                <div class="bg-[#F0F2F5] px-4 py-3 flex items-center gap-3 shadow-sm z-10"><svg
+                    class="w-8 h-8 rounded-full shadow-sm" xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 432.02 432.02">
+                    <defs>
+                      <lineargradient id="chat-demo-gradient" x1="33.29" y1="33.29" x2="398.73" y2="398.73"
+                        gradientUnits="userSpaceOnUse">
+                        <stop offset="0" stop-color="#cae1f4"></stop>
+                        <stop offset="0" stop-color="#badcf4"></stop>
+                        <stop offset="1" stop-color="#3fa4f4"></stop>
+                      </lineargradient>
+                    </defs>
+                    <g>
+                      <rect width="432.02" height="432.02" rx="113.66" ry="113.66" fill="url(#chat-demo-gradient)">
+                      </rect>
+                      <g fill="#fff">
+                        <path
+                          d="M153.06,102.81c-7.23,0-13.09,50.68-13.09,113.2s5.86,113.2,13.09,113.2,13.09-50.68,13.09-113.2-5.86-113.2-13.09-113.2Z">
+                        </path>
+                        <ellipse cx="195.03" cy="187.9" rx="13.09" ry="59.96"></ellipse>
+                        <ellipse cx="236.99" cy="247.71" rx="13.09" ry="54.79"></ellipse>
+                        <path
+                          d="M278.96,97.84c-7.23,0-13.09,52.91-13.09,118.17s5.86,118.17,13.09,118.17,13.09-52.91,13.09-118.17-5.86-118.17-13.09-118.17Z">
+                        </path>
+                        <path
+                          d="M320.93,155.86c-7.23,0-13.09,26.93-13.09,60.15s5.86,60.15,13.09,60.15,13.09-26.93,13.09-60.15-5.86-60.15-13.09-60.15Z">
+                        </path>
+                        <path
+                          d="M111.09,144.42c-7.23,0-13.09,32.05-13.09,71.59s5.86,71.59,13.09,71.59,13.09-32.05,13.09-71.59-5.86-71.59-13.09-71.59Z">
+                        </path>
+                      </g>
+                    </g>
+                  </svg>
+                  <div>
+                    <div class="text-sm font-semibold text-gray-800">tinyNature</div>
+                    <div class="text-[10px] text-green-600 font-medium">Online</div>
+                  </div>
+                </div>
+                <div id="cap-chat-area" class="flex-1 overflow-y-auto p-4 no-scrollbar bg-[#E5DDD5] relative"
+                  style="background-image:url('./chat-bg.png');background-repeat:repeat;background-size:400px">
+                </div>
+                <div class="bg-[#F0F2F5] p-3 flex items-center gap-2">
+                  <div class="p-2 rounded-full text-gray-500"><svg xmlns="http://www.w3.org/2000/svg" width="24"
+                      height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                      stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-plus w-5 h-5"
+                      aria-hidden="true">
+                      <path d="M5 12h14"></path>
+                      <path d="M12 5v14"></path>
+                    </svg></div>
+                  <div class="flex-1 bg-white rounded-full px-4 py-2 text-sm text-gray-400 cursor-not-allowed">Type a
+                    message...</div>
+                  <div class="p-2 rounded-full text-green-600"><svg xmlns="http://www.w3.org/2000/svg" width="24"
+                      height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                      stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-mic w-5 h-5"
+                      aria-hidden="true">
+                      <path d="M12 19v3"></path>
+                      <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
+                      <rect x="9" y="2" width="6" height="13" rx="3"></rect>
+                    </svg></div>
+                </div>
+              </div>
+            </div>
+            <div
+              class="absolute -z-10 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-stone-100 rounded-full blur-3xl opacity-60">
+            </div>
+          </div>
+          <div class="order-1 lg:order-2 space-y-8">
+            <div>
+              <h2 class="text-3xl md:text-4xl font-medium mb-4 text-stone-900 font-serif-title">One contact.<br>Infinite
+                capabilities.</h2>
+              <p class="text-stone-600 leading-relaxed">tinyNature is not just a chatbot; it is a command center. It
+                delegates complex requests to specialized internal sub-agents, ensuring precision across every domain of
+                your life.</p>
+            </div>
+            <div class="space-y-4">
+              <div data-cap="email" class="
+        cap-card group cursor-pointer p-6 rounded-2xl border transition-all duration-300
+        border-stone-200 bg-stone-50 hover:bg-white hover:shadow-lg hover:border-stone-300
+      ">
+                <div class="flex items-start gap-4">
+                  <div class="
+          cap-icon p-3 rounded-xl transition-colors
+          bg-stone-200 text-stone-800 group-hover:bg-stone-900 group-hover:text-white
+        "><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                      stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                      class="lucide lucide-mail w-6 h-6" aria-hidden="true">
+                      <path d="m22 7-8.991 5.727a2 2 0 0 1-2.009 0L2 7"></path>
+                      <rect x="2" y="4" width="20" height="16" rx="2"></rect>
+                    </svg></div>
+                  <div>
+                    <h3 class="text-lg font-semibold mb-1 text-stone-900">Executive Email Agent</h3>
+                    <p class="text-sm text-stone-500">Reads, sorts, and drafts responses. Filters noise so you only see
+                      what matters.</p>
+                  </div>
+                </div>
+              </div>
+              <div data-cap="lifestyle" class="
+        cap-card group cursor-pointer p-6 rounded-2xl border transition-all duration-300
+        border-stone-200 bg-stone-50 hover:bg-white hover:shadow-lg hover:border-stone-300
+      ">
+                <div class="flex items-start gap-4">
+                  <div class="
+          cap-icon p-3 rounded-xl transition-colors
+          bg-stone-200 text-stone-800 group-hover:bg-stone-900 group-hover:text-white
+        "><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                      stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                      class="lucide lucide-calendar-clock w-6 h-6" aria-hidden="true">
+                      <path d="M16 14v2.2l1.6 1"></path>
+                      <path d="M16 2v4"></path>
+                      <path d="M21 7.5V6a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h3.5"></path>
+                      <path d="M3 10h5"></path>
+                      <path d="M8 2v4"></path>
+                      <circle cx="16" cy="16" r="6"></circle>
+                    </svg></div>
+                  <div>
+                    <h3 class="text-lg font-semibold mb-1 text-stone-900">Proactive Lifestyle Manager</h3>
+                    <p class="text-sm text-stone-500">Intelligent reminders based on your career and habits. 'Remind me
+                      to prep for the board meeting.'</p>
+                  </div>
+                </div>
+              </div>
+              <div data-cap="automations" class="
+        cap-card group cursor-pointer p-6 rounded-2xl border transition-all duration-300
+        border-stone-200 bg-stone-50 hover:bg-white hover:shadow-lg hover:border-stone-300
+      ">
+                <div class="flex items-start gap-4">
+                  <div class="
+          cap-icon p-3 rounded-xl transition-colors
+          bg-stone-200 text-stone-800 group-hover:bg-stone-900 group-hover:text-white
+        "><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                      stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                      class="lucide lucide-zap w-6 h-6" aria-hidden="true">
+                      <path
+                        d="M4 14a1 1 0 0 1-.78-1.63l9.9-10.2a.5.5 0 0 1 .86.46l-1.92 6.02A1 1 0 0 0 13 10h7a1 1 0 0 1 .78 1.63l-9.9 10.2a.5.5 0 0 1-.86-.46l1.92-6.02A1 1 0 0 0 11 14z">
+                      </path>
+                    </svg></div>
+                  <div>
+                    <h3 class="text-lg font-semibold mb-1 text-stone-900">Seamless Automations</h3>
+                    <p class="text-sm text-stone-500">Flight updates, daily briefings, weather alerts, and custom
+                      workflows running silently in the background.</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+    <section class="py-24 px-6 bg-stone-50">
+      <div class="max-w-6xl mx-auto">
+        <div class="text-center mb-16">
+          <h2 class="text-3xl font-medium mb-4 font-serif-title text-stone-900">The Internal Agents</h2>
+          <p class="text-stone-500">A unified interface powered by specialized experts.</p>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div
+            class="md:col-span-2 p-8 rounded-3xl bg-white border border-stone-100 shadow-sm min-h-[300px] flex flex-col justify-between">
+            <div class="w-12 h-12 rounded-full bg-stone-100 flex items-center justify-center mb-6"><svg
+                xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                class="lucide lucide-search w-6 h-6 text-stone-900" aria-hidden="true">
+                <path d="m21 21-4.34-4.34"></path>
+                <circle cx="11" cy="11" r="8"></circle>
+              </svg></div>
+            <div>
+              <h3 class="text-2xl font-medium mb-2 font-serif-title text-stone-900">Deep Web Research</h3>
+              <p class="text-stone-500 max-w-md">Forget standard search bars. Ask complex questions and receive curated,
+                cited, and summarized intelligence reports directly in chat.</p>
+            </div>
+            <div class="mt-8 flex gap-2 flex-wrap"><span
+                class="text-xs font-medium px-3 py-1 rounded-full bg-stone-100 text-stone-600">Market
+                Analysis</span><span class="text-xs font-medium px-3 py-1 rounded-full bg-stone-100 text-stone-600">Trip
+                Planning</span><span class="text-xs font-medium px-3 py-1 rounded-full bg-stone-100 text-stone-600">Fact
+                Checking</span></div>
+          </div>
+          <div id="privacy-section"
+            class="scroll-mt-32 p-8 rounded-3xl bg-stone-900 text-white shadow-sm flex flex-col justify-between">
+            <div><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                class="lucide lucide-shield-check w-10 h-10 text-stone-400 mb-6" aria-hidden="true">
+                <path
+                  d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z">
+                </path>
+                <path d="m9 12 2 2 4-4"></path>
+              </svg>
+              <h3 class="text-xl font-medium mb-2 font-serif-title">Privacy First</h3>
+              <p class="text-stone-400 text-sm">Data integrity is our foundation. We are currently undergoing rigorous
+                CASA and SOC 2 reviews to ensure certified, industry-leading privacy standards.</p>
+            </div>
+            <div class="mt-8">
+              <div class="w-full h-1 bg-stone-800 rounded-full overflow-hidden">
+                <div class="h-full bg-green-500 w-3/4"></div>
+              </div>
+              <div class="flex justify-between items-center mt-2">
+                <p class="text-xs text-stone-400">CASA &amp; SOC 2 Review</p>
+                <p class="text-xs text-green-500 font-medium">In Progress</p>
+              </div>
+            </div>
+          </div>
+          <div class="p-8 rounded-3xl bg-white border border-stone-100 shadow-sm">
+            <div class="flex justify-between items-start mb-6">
+              <div class="w-10 h-10 rounded-full bg-green-50 flex items-center justify-center"><svg
+                  xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                  stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                  class="lucide lucide-plane w-5 h-5 text-green-700" aria-hidden="true">
+                  <path
+                    d="M17.8 19.2 16 11l3.5-3.5C21 6 21.5 4 21 3c-1-.5-3 0-4.5 1.5L13 8 4.8 6.2c-.5-.1-.9.1-1.1.5l-.3.5c-.2.5-.1 1 .3 1.3L9 12l-2 3H4l-1 1 3 2 2 3 1-1v-3l3-2 3.5 5.3c.3.4.8.5 1.3.3l.5-.2c.4-.3.6-.7.5-1.2z">
+                  </path>
+                </svg></div><span class="text-xs font-bold text-green-700 bg-green-50 px-2 py-1 rounded">LIVE</span>
+            </div>
+            <h3 class="text-lg font-medium mb-2 font-serif-title text-stone-900">Real-time Tracking</h3>
+            <p class="text-sm text-stone-500">Flights, packages, and stocks monitored autonomously.</p>
+          </div>
+          <div
+            class="md:col-span-2 p-8 rounded-3xl bg-[#E8E6E1] border border-transparent shadow-sm flex items-center justify-between relative overflow-hidden">
+            <div class="relative z-10">
+              <h3 class="text-2xl font-medium mb-2 text-stone-900 font-serif-title">The "Average User" Replacement</h3>
+              <p class="text-stone-700 max-w-sm">Why use ten apps when one conversation suffices? tinyNature
+                consolidates your entire digital workflow.</p>
+            </div><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+              stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+              class="lucide lucide-layers w-32 h-32 text-stone-900 opacity-5 absolute -right-4 -bottom-4"
+              aria-hidden="true">
+              <path
+                d="M12.83 2.18a2 2 0 0 0-1.66 0L2.6 6.08a1 1 0 0 0 0 1.83l8.58 3.91a2 2 0 0 0 1.66 0l8.58-3.9a1 1 0 0 0 0-1.83z">
+              </path>
+              <path d="M2 12a1 1 0 0 0 .58.91l8.6 3.91a2 2 0 0 0 1.65 0l8.58-3.9A1 1 0 0 0 22 12"></path>
+              <path d="M2 17a1 1 0 0 0 .58.91l8.6 3.91a2 2 0 0 0 1.65 0l8.58-3.9A1 1 0 0 0 22 17"></path>
+            </svg>
+          </div>
+        </div>
+      </div>
+    </section>
+    <section id="platforms" class="py-24 bg-white text-center">
+      <div class="max-w-4xl mx-auto px-6">
+        <h2 class="text-3xl font-medium mb-16 text-stone-900 font-serif-title">Available where you are</h2>
+        <div class="flex flex-col md:flex-row items-center justify-center gap-12 md:gap-24"><a
+            href="https://wa.me/14242421336" target="_blank" rel="noopener noreferrer"
+            class="flex flex-col items-center gap-5 group cursor-pointer">
+            <div
+              class="relative w-24 h-24 rounded-[1.5rem] bg-gradient-to-br from-[#4ADE80] to-[#25D366] flex items-center justify-center shadow-2xl shadow-green-200/50 transform group-hover:scale-105 transition-transform duration-300 ring-1 ring-inset ring-white/20">
+              <svg class="w-12 h-12 text-white fill-current drop-shadow-sm" viewBox="0 0 24 24"
+                xmlns="http://www.w3.org/2000/svg">
+                <path
+                  d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z">
+                </path>
+              </svg></div>
+            <div class="text-center">
+              <h3 class="text-lg font-bold text-stone-900 mb-1">WhatsApp</h3><span
+                class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">Available
+                Now</span>
+            </div>
+          </a>
+          <div class="hidden md:block w-px h-32 bg-gradient-to-b from-transparent via-stone-200 to-transparent"></div>
+          <div class="flex flex-col items-center gap-5 group cursor-pointer">
+            <div
+              class="relative w-24 h-24 rounded-[1.5rem] bg-gradient-to-b from-[#6BE078] to-[#34C759] flex items-center justify-center shadow-2xl shadow-green-200/50 transform group-hover:scale-105 transition-transform duration-300 ring-1 ring-inset ring-white/10">
+              <svg class="w-14 h-14 text-white fill-current drop-shadow-sm mt-1" viewBox="0 0 24 24"
+                xmlns="http://www.w3.org/2000/svg">
+                <path
+                  d="M12 2C6.477 2 2 5.813 2 10.5c0 2.34 1.048 4.468 2.754 6.08l-.718 3.156a.5.5 0 0 0 .718.545l3.455-1.727A11.29 11.29 0 0 0 12 19c5.523 0 10-3.813 10-8.5S17.523 2 12 2z">
+                </path>
+              </svg></div>
+            <div class="text-center">
+              <h3 class="text-lg font-bold text-stone-900 mb-1">iMessage</h3><span
+                class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">Available
+                Now</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+    <section id="automations" class="py-24 bg-stone-900 text-white overflow-hidden relative">
+      <div class="absolute top-0 left-0 w-full h-full overflow-hidden opacity-10 pointer-events-none">
+        <div class="w-[800px] h-[800px] bg-green-900 rounded-full blur-3xl absolute -top-40 -right-40"></div>
+      </div>
+      <div class="max-w-6xl mx-auto px-6 relative z-10">
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+          <div class="space-y-10">
+            <div>
+              <div
+                class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-stone-800 border border-stone-700 mb-6">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                  stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                  class="lucide lucide-sparkles w-3 h-3 text-green-400" aria-hidden="true">
+                  <path
+                    d="M11.017 2.814a1 1 0 0 1 1.966 0l1.051 5.558a2 2 0 0 0 1.594 1.594l5.558 1.051a1 1 0 0 1 0 1.966l-5.558 1.051a2 2 0 0 0-1.594 1.594l-1.051 5.558a1 1 0 0 1-1.966 0l-1.051-5.558a2 2 0 0 0-1.594-1.594l-5.558-1.051a1 1 0 0 1 0-1.966l5.558-1.051a2 2 0 0 0 1.594-1.594z">
+                  </path>
+                  <path d="M20 2v4"></path>
+                  <path d="M22 4h-4"></path>
+                  <circle cx="4" cy="20" r="2"></circle>
+                </svg><span class="text-xs font-semibold uppercase tracking-wider text-stone-300">Simply Ask</span>
+              </div>
+              <h2 class="text-3xl md:text-5xl font-medium mb-6 leading-tight font-serif-title">Your personal<br><span
+                  class="text-stone-400 italic font-serif-title">autopilot.</span></h2>
+              <p class="text-stone-400 text-lg leading-relaxed max-w-md">No complex settings or apps to configure. Just
+                tell tinyNature what you need, and it adapts to your life instantly.</p>
+            </div>
+            <div class="space-y-4">
+              <h3 class="text-sm font-semibold uppercase tracking-widest text-stone-500 mb-4">Try these commands</h3>
+              <button data-command="tasks" class="
+        command-btn w-full text-left p-5 rounded-xl border transition-all flex items-center gap-4 group focus:outline-none focus:ring-2 focus:ring-opacity-50
+        bg-stone-800 border-stone-700 hover:bg-stone-700 focus:ring-green-500
+      ">
+                <div class="
+        w-10 h-10 rounded-full bg-stone-900 flex items-center justify-center border transition-colors
+        text-green-500 group-hover:border-green-500 border-stone-700
+      "><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                    class="lucide lucide-list-todo w-5 h-5" aria-hidden="true">
+                    <path d="M13 5h8"></path>
+                    <path d="M13 12h8"></path>
+                    <path d="M13 19h8"></path>
+                    <path d="m3 17 2 2 4-4"></path>
+                    <rect x="3" y="4" width="6" height="6" rx="1"></rect>
+                  </svg></div>
+                <div>
+                  <div class="font-medium text-stone-200 mb-1">Daily Task Nudge</div>
+                  <div class="text-sm text-stone-500">"Remind me everyday at 4pm about my uncompleted tasks..."</div>
+                </div>
+              </button><button data-command="vision" class="
+        command-btn w-full text-left p-5 rounded-xl border transition-all flex items-center gap-4 group focus:outline-none focus:ring-2 focus:ring-opacity-50
+        bg-stone-800 border-stone-700 hover:bg-stone-700 focus:ring-blue-500
+      ">
+                <div class="
+        w-10 h-10 rounded-full bg-stone-900 flex items-center justify-center border transition-colors
+        text-blue-400 group-hover:border-blue-400 border-stone-700
+      "><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                    class="lucide lucide-eye w-5 h-5" aria-hidden="true">
+                    <path
+                      d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0">
+                    </path>
+                    <circle cx="12" cy="12" r="3"></circle>
+                  </svg></div>
+                <div>
+                  <div class="font-medium text-stone-200 mb-1">Smart Vision</div>
+                  <div class="text-sm text-stone-500">"Extract expiry dates from grocery photos and remind me..."</div>
+                </div>
+              </button><button data-command="expenses" class="
+        command-btn w-full text-left p-5 rounded-xl border transition-all flex items-center gap-4 group focus:outline-none focus:ring-2 focus:ring-opacity-50
+        bg-stone-800 border-stone-700 hover:bg-stone-700 focus:ring-purple-500
+      ">
+                <div class="
+        w-10 h-10 rounded-full bg-stone-900 flex items-center justify-center border transition-colors
+        text-purple-400 group-hover:border-purple-400 border-stone-700
+      "><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                    class="lucide lucide-receipt w-5 h-5" aria-hidden="true">
+                    <path d="M4 2v20l2-1 2 1 2-1 2 1 2-1 2 1 2-1 2 1V2l-2 1-2-1-2 1-2-1-2 1-2-1-2 1Z"></path>
+                    <path d="M16 8h-6a2 2 0 1 0 0 4h4a2 2 0 1 1 0 4H8"></path>
+                    <path d="M12 17.5v-11"></path>
+                  </svg></div>
+                <div>
+                  <div class="font-medium text-stone-200 mb-1">Expense Tracker</div>
+                  <div class="text-sm text-stone-500">"If I upload a receipt over $100, save it to my expenses..."</div>
+                </div>
+              </button>
+            </div>
+          </div>
+          <div class="relative flex justify-center">
+            <div
+              class="relative mx-auto border-stone-800 bg-stone-800 border-[14px] rounded-[2.5rem] h-[600px] w-[320px] md:w-[350px] shadow-2xl flex flex-col overflow-hidden">
+              <div class="h-[32px] bg-stone-800 w-full absolute top-0 left-0 z-10 rounded-t-[2rem]"></div>
+              <div class="flex-1 bg-[#E5DDD5] flex flex-col relative overflow-hidden font-sans">
+                <div class="bg-[#F0F2F5] px-4 py-3 flex items-center gap-3 shadow-sm z-10"><svg
+                    class="w-8 h-8 rounded-full shadow-sm" xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 432.02 432.02">
+                    <defs>
+                      <lineargradient id="auto-demo-gradient" x1="33.29" y1="33.29" x2="398.73" y2="398.73"
+                        gradientUnits="userSpaceOnUse">
+                        <stop offset="0" stop-color="#cae1f4"></stop>
+                        <stop offset="0" stop-color="#badcf4"></stop>
+                        <stop offset="1" stop-color="#3fa4f4"></stop>
+                      </lineargradient>
+                    </defs>
+                    <g>
+                      <rect width="432.02" height="432.02" rx="113.66" ry="113.66" fill="url(#auto-demo-gradient)">
+                      </rect>
+                      <g fill="#fff">
+                        <path
+                          d="M153.06,102.81c-7.23,0-13.09,50.68-13.09,113.2s5.86,113.2,13.09,113.2,13.09-50.68,13.09-113.2-5.86-113.2-13.09-113.2Z">
+                        </path>
+                        <ellipse cx="195.03" cy="187.9" rx="13.09" ry="59.96"></ellipse>
+                        <ellipse cx="236.99" cy="247.71" rx="13.09" ry="54.79"></ellipse>
+                        <path
+                          d="M278.96,97.84c-7.23,0-13.09,52.91-13.09,118.17s5.86,118.17,13.09,118.17,13.09-52.91,13.09-118.17-5.86-118.17-13.09-118.17Z">
+                        </path>
+                        <path
+                          d="M320.93,155.86c-7.23,0-13.09,26.93-13.09,60.15s5.86,60.15,13.09,60.15,13.09-26.93,13.09-60.15-5.86-60.15-13.09-60.15Z">
+                        </path>
+                        <path
+                          d="M111.09,144.42c-7.23,0-13.09,32.05-13.09,71.59s5.86,71.59,13.09,71.59,13.09-32.05,13.09-71.59-5.86-71.59-13.09-71.59Z">
+                        </path>
+                      </g>
+                    </g>
+                  </svg>
+                  <div>
+                    <div class="text-sm font-semibold text-gray-800">tinyNature</div>
+                    <div class="text-[10px] text-green-600 font-medium">Online</div>
+                  </div>
+                </div>
+                <div id="auto-chat-area" class="flex-1 overflow-y-auto p-4 no-scrollbar bg-[#E5DDD5] relative"
+                  style="background-image:url('./chat-bg.png');background-repeat:repeat;background-size:400px">
+                </div>
+                <div class="bg-[#F0F2F5] p-3 flex items-center gap-2">
+                  <div class="p-2 rounded-full text-gray-500"><svg xmlns="http://www.w3.org/2000/svg" width="24"
+                      height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                      stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-plus w-5 h-5"
+                      aria-hidden="true">
+                      <path d="M5 12h14"></path>
+                      <path d="M12 5v14"></path>
+                    </svg></div>
+                  <div class="flex-1 bg-white rounded-full px-4 py-2 text-sm text-gray-400 cursor-not-allowed">Type a
+                    message...</div>
+                  <div class="p-2 rounded-full text-green-600"><svg xmlns="http://www.w3.org/2000/svg" width="24"
+                      height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                      stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-mic w-5 h-5"
+                      aria-hidden="true">
+                      <path d="M12 19v3"></path>
+                      <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
+                      <rect x="9" y="2" width="6" height="13" rx="3"></rect>
+                    </svg></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+    <footer class="bg-stone-900 text-stone-400 py-16">
+      <div class="max-w-6xl mx-auto px-6 grid grid-cols-1 md:grid-cols-4 gap-12">
+        <div class="col-span-1 md:col-span-1">
+          <div class="text-white text-xl font-semibold mb-4 flex items-center gap-2 font-serif-title">
+            <div class="w-3 h-3 rounded-full bg-white"></div>tinyNature
+          </div>
+          <p class="text-sm leading-relaxed opacity-80">Reclaiming human time through agentic intelligence and radical
+            minimalism.</p>
+        </div>
+        <div>
+          <h4 class="text-white font-medium mb-4">Product</h4>
+          <ul class="space-y-2 text-sm">
+            <li><a href="https://www.naturaumana.ai/mission" class="hover:text-white transition-colors">Manifesto</a>
+            </li>
+          </ul>
+        </div>
+        <div>
+          <h4 class="text-white font-medium mb-4">Company</h4>
+          <ul class="space-y-2 text-sm">
+            <li><a href="https://www.naturaumana.ai/" class="hover:text-white transition-colors">About Natura AI</a>
+            </li>
+            <li><a href="mailto:mike@naturaumana.ai" class="hover:text-white transition-colors">Careers</a></li>
+            <li><a href="mailto:hello@naturaumana.ai" class="hover:text-white transition-colors">Contact</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4 class="text-white font-medium mb-4">Legal</h4>
+          <ul class="space-y-2 text-sm">
+            <li><a href="https://www.naturaumana.ai/privacy-policy" class="hover:text-white transition-colors">Privacy
+                Policy</a></li>
+            <li><a href="https://www.naturaumana.ai/terms-and-conditions"
+                class="hover:text-white transition-colors">Terms of Service</a></li>
+          </ul>
+        </div>
+      </div>
+      <div
+        class="max-w-6xl mx-auto px-6 mt-16 pt-8 border-t border-stone-800 text-xs text-center md:text-left flex flex-col md:flex-row justify-between items-center">
+        <p>&copy; 2025 Natura AI. All rights reserved.</p>
+      </div>
+    </footer>
+  </main>
+
+  <script>
+    // Mobile menu toggle — Apple-style con closing transition
+    (function () {
+      const menuButton = document.getElementById('mobile-menu-button');
+      const mobileMenu = document.getElementById('mobile-menu');
+      const overlay = document.getElementById('mobile-menu-overlay');
+      let isAnimating = false;
+
+      function openMenu() {
+        if (isAnimating) return;
+        mobileMenu.classList.remove('closing');
+        mobileMenu.classList.add('active');
+        document.body.style.overflow = 'hidden';
+      }
+
+      function closeMenu() {
+        if (isAnimating) return;
+        isAnimating = true;
+        mobileMenu.classList.add('closing');
+        mobileMenu.classList.remove('active');
+
+        // Attendi fine transizione, poi pulisci
+        setTimeout(function() {
+          mobileMenu.classList.remove('closing');
+          document.body.style.overflow = '';
+          isAnimating = false;
+        }, 300);
+      }
+
+      function toggleMenu() {
+        if (mobileMenu.classList.contains('active')) {
+          closeMenu();
+        } else {
+          openMenu();
+        }
+      }
+
+      if (menuButton) {
+        menuButton.addEventListener('click', toggleMenu);
+      }
+
+      if (overlay) {
+        overlay.addEventListener('click', closeMenu);
+      }
+
+      // Chiudi menu con link interni
+      mobileMenu.querySelectorAll('a[href^="#"]').forEach(function(link) {
+        link.addEventListener('click', closeMenu);
+      });
+    })();
+
+    // Capabilities section - interactive cards
+    (function() {
+      var capChat = document.getElementById('cap-chat-area');
+      var capCards = document.querySelectorAll('.cap-card');
+      if (!capChat || !capCards.length) return;
+
+      var capConvos = {
+        email: [
+          { from: 'bot', text: 'Good morning. I\'ve filtered your inbox. You have 3 priority emails requiring responses, and I\'ve drafted replies for your review.', time: '09:01' },
+          { from: 'user', text: 'Show me the priority ones', time: '09:02' },
+          { from: 'bot', text: '1. CFO — Q2 budget approval needed\n2. Client (Acme) — contract renewal question\n3. HR — team offsite confirmation\n\nI\'ve drafted responses for all three. Want me to send them?', time: '09:02' },
+          { from: 'user', text: 'Send the HR one, let me review the others', time: '09:03' },
+          { from: 'bot', text: 'Done. HR reply sent.\n\nI\'ve placed the other two drafts at the top of your inbox for review.', time: '09:03' }
+        ],
+        lifestyle: [
+          { from: 'user', text: 'Remind me to prep for the board meeting', time: '08:30' },
+          { from: 'bot', text: 'When is the board meeting?', time: '08:30' },
+          { from: 'user', text: 'Next Tuesday at 2pm', time: '08:31' },
+          { from: 'bot', text: 'Got it. I\'ve set up a smart prep schedule:\n\n\ud83d\udcc5 Friday 4pm — Review last quarter\'s numbers\n\ud83d\udcc5 Monday 10am — Finalize slide deck\n\ud83d\udcc5 Tuesday 12pm — Final review + lunch reminder\n\nI\'ll nudge you at each step.', time: '08:31' }
+        ],
+        automations: [
+          { from: 'bot', text: '\u2708\ufe0f Flight Update: Your BA 178 to London is on time. Gate B42, boarding at 14:20.', time: '13:45' },
+          { from: 'bot', text: '\ud83c\udf24\ufe0f Weather: Rain expected at your destination. High of 12\u00b0C. Pack a jacket.', time: '13:46' },
+          { from: 'bot', text: '\ud83d\udcc8 Market Close: Your portfolio is up 1.2% today. AAPL +2.4%, MSFT +0.8%.', time: '16:00' },
+          { from: 'user', text: 'Add a daily briefing at 7am', time: '16:05' },
+          { from: 'bot', text: 'Done. Every morning at 7am you\'ll get:\n\n\u2022 Weather forecast\n\u2022 Calendar summary\n\u2022 Top 3 news headlines\n\u2022 Portfolio snapshot', time: '16:05' }
+        ]
+      };
+
+      function renderCapChat(key) {
+        var msgs = capConvos[key];
+        capChat.style.opacity = '0';
+        capChat.style.transition = 'opacity 0.2s ease';
+        setTimeout(function() {
+          capChat.innerHTML = '';
+          msgs.forEach(function(msg) {
+            var isUser = msg.from === 'user';
+            var wrapper = document.createElement('div');
+            wrapper.style.display = 'flex';
+            wrapper.style.justifyContent = isUser ? 'flex-end' : 'flex-start';
+            wrapper.style.marginBottom = '6px';
+            var bubble = document.createElement('div');
+            bubble.style.maxWidth = '85%';
+            bubble.style.padding = '8px 12px';
+            bubble.style.borderRadius = isUser ? '12px 2px 12px 12px' : '2px 12px 12px 12px';
+            bubble.style.backgroundColor = isUser ? '#DCF8C6' : '#FFFFFF';
+            bubble.style.color = '#1C1C1C';
+            bubble.style.fontSize = '13px';
+            bubble.style.lineHeight = '1.5';
+            bubble.style.boxShadow = '0 1px 1px rgba(0,0,0,0.08)';
+            var textEl = document.createElement('div');
+            textEl.style.whiteSpace = 'pre-line';
+            textEl.textContent = msg.text;
+            bubble.appendChild(textEl);
+            var timeEl = document.createElement('div');
+            timeEl.style.fontSize = '10px';
+            timeEl.style.color = '#999';
+            timeEl.style.textAlign = 'right';
+            timeEl.style.marginTop = '3px';
+            timeEl.textContent = msg.time;
+            bubble.appendChild(timeEl);
+            wrapper.appendChild(bubble);
+            capChat.appendChild(wrapper);
+          });
+          capChat.style.opacity = '1';
+        }, 200);
+      }
+
+      function setActiveCard(activeCard) {
+        capCards.forEach(function(card) {
+          card.style.backgroundColor = '';
+          card.style.borderColor = '';
+          card.style.boxShadow = '';
+          var icon = card.querySelector('.cap-icon');
+          if (icon) {
+            icon.style.backgroundColor = '';
+            icon.style.color = '';
+          }
+        });
+        activeCard.style.backgroundColor = '#FFFFFF';
+        activeCard.style.borderColor = '#d6d3d1';
+        activeCard.style.boxShadow = '0 10px 15px -3px rgba(0,0,0,0.1)';
+        var icon = activeCard.querySelector('.cap-icon');
+        if (icon) {
+          icon.style.backgroundColor = '#1c1917';
+          icon.style.color = '#FFFFFF';
+        }
+      }
+
+      capCards.forEach(function(card) {
+        card.addEventListener('click', function() {
+          var key = card.getAttribute('data-cap');
+          setActiveCard(card);
+          renderCapChat(key);
+        });
+      });
+
+      // Default
+      renderCapChat('email');
+      setActiveCard(capCards[0]);
+    })();
+
+    // Automations section - interactive command buttons
+    (function() {
+      var chatArea = document.getElementById('auto-chat-area');
+      var buttons = document.querySelectorAll('.command-btn');
+      if (!chatArea || !buttons.length) return;
+
+      var conversations = {
+        tasks: [
+          { from: 'user', text: 'Remind me everyday at 4pm about my uncompleted tasks', time: '16:00' },
+          { from: 'bot', text: 'Done. I\'ll send you a daily summary at 4pm with all your pending tasks.\n\nI\'ll also flag anything overdue. Want me to include priority levels?', time: '16:00' },
+          { from: 'user', text: 'Yes, sort by priority', time: '16:01' },
+          { from: 'bot', text: 'Perfect. Your daily nudge is set. Here\'s a preview of today\'s:\n\n\ud83d\udd34 Finalize Q2 budget report\n\ud83d\udfe1 Reply to Sarah\'s proposal\n\ud83d\udfe2 Book dentist appointment', time: '16:01' }
+        ],
+        vision: [
+          { from: 'user', text: 'Extract expiry dates from grocery photos and remind me before they expire', time: '11:30' },
+          { from: 'bot', text: 'Got it. Send me a photo of your groceries anytime and I\'ll extract all the expiry dates automatically.', time: '11:30' },
+          { from: 'user', text: '', time: '11:32', image: './grocery-photo.jpg' },
+          { from: 'bot', text: 'Found 4 items:\n\n\ud83e\udd5b Oat milk \u2014 expires Mar 5\n\ud83e\uddc0 Cheddar \u2014 expires Mar 12\n\ud83e\udd5a Eggs \u2014 expires Mar 8\n\ud83c\udf57 Chicken \u2014 expires Mar 2\n\nI\'ll remind you 1 day before each. The chicken expires tomorrow!', time: '11:32' }
+        ],
+        expenses: [
+          { from: 'user', text: 'If I upload a receipt over $100, save it to my expenses sheet', time: '09:15' },
+          { from: 'bot', text: 'Automation created. Any receipt photo over $100 will be logged to your expenses automatically.\n\nI\'ll extract the vendor, amount, date, and category.', time: '09:15' },
+          { from: 'user', text: '', time: '14:22', image: './receipt-photo.svg' },
+          { from: 'bot', text: 'Receipt captured and saved:\n\n\ud83c\udfea Apple Store \u2014 $249.00\n\ud83d\udcc5 Feb 28, 2026\n\ud83c\udff7\ufe0f Category: Electronics\n\nAdded to your February expenses. Running total: $1,847.50', time: '14:22' }
+        ]
+      };
+
+      function renderChat(key) {
+        var msgs = conversations[key];
+        chatArea.style.opacity = '0';
+        chatArea.style.transition = 'opacity 0.2s ease';
+
+        setTimeout(function() {
+          chatArea.innerHTML = '';
+          msgs.forEach(function(msg) {
+            var isUser = msg.from === 'user';
+            var wrapper = document.createElement('div');
+            wrapper.style.display = 'flex';
+            wrapper.style.justifyContent = isUser ? 'flex-end' : 'flex-start';
+            wrapper.style.marginBottom = '6px';
+
+            var bubble = document.createElement('div');
+            bubble.style.maxWidth = '85%';
+            bubble.style.padding = '8px 12px';
+            bubble.style.borderRadius = isUser ? '12px 2px 12px 12px' : '2px 12px 12px 12px';
+            bubble.style.backgroundColor = isUser ? '#DCF8C6' : '#FFFFFF';
+            bubble.style.color = '#1C1C1C';
+            bubble.style.fontSize = '13px';
+            bubble.style.lineHeight = '1.5';
+            bubble.style.boxShadow = '0 1px 1px rgba(0,0,0,0.08)';
+
+            if (msg.image) {
+              var img = document.createElement('img');
+              img.src = msg.image;
+              img.style.width = '100%';
+              img.style.maxWidth = '180px';
+              img.style.borderRadius = '6px';
+              img.style.display = 'block';
+              img.style.marginBottom = '4px';
+              bubble.appendChild(img);
+            } else {
+              var textEl = document.createElement('div');
+              textEl.style.whiteSpace = 'pre-line';
+              textEl.textContent = msg.text;
+              bubble.appendChild(textEl);
+            }
+
+            var timeEl = document.createElement('div');
+            timeEl.style.fontSize = '10px';
+            timeEl.style.color = '#999';
+            timeEl.style.textAlign = 'right';
+            timeEl.style.marginTop = '3px';
+            timeEl.textContent = msg.time;
+            bubble.appendChild(timeEl);
+
+            wrapper.appendChild(bubble);
+            chatArea.appendChild(wrapper);
+          });
+
+          chatArea.style.opacity = '1';
+        }, 200);
+      }
+
+      function setActiveButton(activeBtn) {
+        var borderColors = { tasks: '#22c55e', vision: '#60a5fa', expenses: '#c084fc' };
+        buttons.forEach(function(btn) {
+          btn.style.borderColor = '#44403c';
+          btn.style.backgroundColor = '';
+          var icon = btn.children[0];
+          if (icon) icon.style.borderColor = '#44403c';
+        });
+
+        var cmd = activeBtn.getAttribute('data-command');
+        var color = borderColors[cmd] || '#22c55e';
+        activeBtn.style.borderColor = color;
+        activeBtn.style.backgroundColor = '#44403c';
+        var icon = activeBtn.children[0];
+        if (icon) icon.style.borderColor = color;
+      }
+
+      buttons.forEach(function(btn) {
+        btn.addEventListener('click', function() {
+          var cmd = btn.getAttribute('data-command');
+          setActiveButton(btn);
+          renderChat(cmd);
+        });
+      });
+
+      // Render default
+      renderChat('tasks');
+      setActiveButton(buttons[0]);
+    })();
+
+    // Listen for scene loaded message from iframe
+    window.addEventListener('message', function(event) {
+      if (event.data === 'sceneLoaded') {
+        const heroTitle = document.getElementById('hero-title');
+        if (heroTitle) {
+          heroTitle.classList.add('visible');
+        }
+      }
+    });
+
+    // Scroll-triggered title and navbar animation
+    (function () {
+      const heroTitle = document.getElementById('hero-title');
+      const scrollContainer = document.getElementById('scroll-animation-container');
+      const navbar = document.getElementById('navbar');
+
+      if (!heroTitle || !scrollContainer || !navbar) return;
+
+      function updateScrollEffects() {
+        // Only animate if title is visible (scene loaded)
+        if (!heroTitle.classList.contains('visible')) return;
+
+        const scrollY = window.scrollY;
+        const viewportHeight = window.innerHeight;
+        const fadeOutDuration = viewportHeight * 0.85; // 0.85vh per fade out
+        const maxBlur = 50; // Blur massimo in pixel
+
+        // TITLE ANIMATION
+        let titleOpacity = 1;
+        let titleBlur = 0;
+
+        if (scrollY <= fadeOutDuration) {
+          titleOpacity = 1 - (scrollY / fadeOutDuration);
+          titleBlur = (scrollY / fadeOutDuration) * maxBlur;
+        } else {
+          titleOpacity = 0;
+          titleBlur = maxBlur;
+        }
+
+        titleOpacity = Math.max(0, Math.min(1, titleOpacity));
+        titleBlur = Math.max(0, Math.min(maxBlur, titleBlur));
+
+        heroTitle.style.opacity = titleOpacity;
+        heroTitle.style.filter = `blur(${titleBlur}px)`;
+
+        // NAVBAR ANIMATION (synchronized - starts earlier and with less blur)
+        const navbarStartScroll = fadeOutDuration * 0.85; // Inizia all'85% dell'animazione
+        const navbarEndScroll = fadeOutDuration * 1.0; // Finisce esattamente alla fine dell'animazione scritta
+        const maxNavbarBlur = 15; // Blur ridotto per la navbar (invece di 50px)
+        let navbarOpacity = 0;
+        let navbarBlur = maxNavbarBlur;
+
+        if (scrollY <= navbarStartScroll) {
+          // Prima parte: navbar invisibile e sfocata
+          navbarOpacity = 0;
+          navbarBlur = maxNavbarBlur;
+        } else if (scrollY <= navbarEndScroll) {
+          // Navbar fade in + blur out (diventa nitida) - animazione più veloce
+          const navbarProgress = (scrollY - navbarStartScroll) / (navbarEndScroll - navbarStartScroll);
+          navbarOpacity = navbarProgress;
+          navbarBlur = maxNavbarBlur * (1 - navbarProgress); // blur inverso
+        } else {
+          // Dopo animazione: navbar completamente visibile e nitida
+          navbarOpacity = 1;
+          navbarBlur = 0;
+        }
+
+        navbarOpacity = Math.max(0, Math.min(1, navbarOpacity));
+        navbarBlur = Math.max(0, Math.min(maxNavbarBlur, navbarBlur));
+
+        navbar.style.opacity = navbarOpacity;
+        // Remove filter when blur is 0 to avoid interference with backdrop-filter
+        navbar.style.filter = navbarBlur > 0 ? `blur(${navbarBlur}px)` : 'none';
+      }
+
+      // Update on scroll
+      window.addEventListener('scroll', updateScrollEffects, { passive: true });
+
+      // Initial update
+      updateScrollEffects();
+    })();
+
+    // Detect browsers che supportano backdrop-filter: url(#svg-filter)
+    // Approccio: default = blur glass, opt-in = SVG displacement
+    // Solo desktop Chrome/Firefox lo supportano realmente
+    (function() {
+      const isApple = navigator.vendor === 'Apple Computer, Inc.' ||
+        /iPad|iPhone|iPod/.test(navigator.userAgent) ||
+        (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+      const isMobile = (('ontouchstart' in window || navigator.maxTouchPoints > 0) && window.innerWidth < 1024) ||
+        /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
+      // SVG filter in backdrop-filter funziona solo su desktop Chrome/Firefox
+      if (!isApple && !isMobile) {
+        document.documentElement.classList.add('svg-glass');
+        console.log('Liquid Glass: SVG displacement attivato');
+      } else {
+        console.log('Liquid Glass: blur glass (fallback universale)');
+      }
+    })();
+
+    // Liquid Glass Effect - jh3y implementation (solo se svg-glass attivo)
+    (function() {
+      if (!document.documentElement.classList.contains('svg-glass')) {
+        console.log('Liquid Glass SVG: skipped (blur fallback attivo)');
+        return;
+      }
+
+      const glassEffect = document.querySelector('.liquid-glass-effect');
+      const feImage = document.getElementById('liquid-feimage');
+
+      console.log('Liquid Glass Init:', { glassEffect: !!glassEffect, feImage: !!feImage });
+      if (!glassEffect || !feImage) {
+        console.error('Liquid Glass: elementi non trovati!');
+        return;
+      }
+
+      // Exact config from jh3y
+      const config = {
+        scale: -180,
+        radius: 28,
+        border: 0.07,
+        lightness: 50,
+        blend: 'difference',
+        alpha: 0.93,
+        blur: 11,
+        r: 0,
+        g: 10,
+        b: 20,
+      };
+
+      function buildDisplacementImage(width, height) {
+        const border = Math.min(width, height) * (config.border * 0.5);
+
+        const svg = `<svg viewBox="0 0 ${width} ${height}" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <linearGradient id="red" x1="100%" y1="0%" x2="0%" y2="0%">
+              <stop offset="0%" stop-color="#000"/>
+              <stop offset="100%" stop-color="red"/>
+            </linearGradient>
+            <linearGradient id="blue" x1="0%" y1="0%" x2="0%" y2="100%">
+              <stop offset="0%" stop-color="#000"/>
+              <stop offset="100%" stop-color="blue"/>
+            </linearGradient>
+          </defs>
+          <rect x="0" y="0" width="${width}" height="${height}" fill="black"></rect>
+          <rect x="0" y="0" width="${width}" height="${height}" rx="${config.radius}" fill="url(#red)" />
+          <rect x="0" y="0" width="${width}" height="${height}" rx="${config.radius}" fill="url(#blue)" style="mix-blend-mode: ${config.blend}" />
+          <rect x="${border}" y="${border}" width="${width - border * 2}" height="${height - border * 2}" rx="${config.radius}" fill="hsl(0 0% ${config.lightness}% / ${config.alpha})" style="filter:blur(${config.blur}px)" />
+        </svg>`;
+
+        return 'data:image/svg+xml,' + encodeURIComponent(svg);
+      }
+
+      function updateFilter() {
+        const rect = glassEffect.getBoundingClientRect();
+        const width = Math.round(rect.width);
+        const height = Math.round(rect.height);
+
+        console.log('Liquid Glass updateFilter:', width, 'x', height);
+
+        if (width > 0 && height > 0) {
+          const dataUri = buildDisplacementImage(width, height);
+          feImage.setAttribute('href', dataUri);
+
+          document.getElementById('redchannel')?.setAttribute('scale', config.scale + config.r);
+          document.getElementById('greenchannel')?.setAttribute('scale', config.scale + config.g);
+          document.getElementById('bluechannel')?.setAttribute('scale', config.scale + config.b);
+          console.log('Liquid Glass: filter updated!');
+        }
+      }
+
+      // Initialize immediately
+      updateFilter();
+
+      // Also update after a delay to ensure everything is ready
+      setTimeout(updateFilter, 100);
+      setTimeout(updateFilter, 500);
+
+      let resizeTimer;
+      window.addEventListener('resize', function() {
+        clearTimeout(resizeTimer);
+        resizeTimer = setTimeout(updateFilter, 100);
+      });
+
+      // Update when navbar becomes visible or filter changes
+      const navbar = document.getElementById('navbar');
+      if (navbar) {
+        new MutationObserver(function() {
+          const opacity = parseFloat(navbar.style.opacity) || 0;
+          const filter = navbar.style.filter;
+          // Update when visible AND filter is 'none' (not blurred)
+          if (opacity > 0 && (filter === 'none' || filter === '')) {
+            updateFilter();
+          }
+        }).observe(navbar, { attributes: true, attributeFilter: ['style'] });
+      }
+
+      // Update on scroll to ensure it works when navbar becomes visible
+      window.addEventListener('scroll', function() {
+        requestAnimationFrame(updateFilter);
+      }, { passive: true, once: true });
+    })();
+
+    // Liquid Glass Effect for Mobile Menu (solo se svg-glass attivo)
+    (function() {
+      if (!document.documentElement.classList.contains('svg-glass')) {
+        console.log('Liquid Glass SVG Mobile: skipped (blur fallback attivo)');
+        return;
+      }
+
+      const mobileMenu = document.getElementById('mobile-menu');
+      const glassEffectMobile = document.querySelector('.liquid-glass-effect-mobile');
+      const feImageMobile = document.getElementById('liquid-feimage-mobile');
+
+      if (!glassEffectMobile || !feImageMobile) {
+        console.error('Liquid Glass Mobile: elementi non trovati!');
+        return;
+      }
+
+      const config = {
+        scale: -200,  // Aumentato per più distorsione
+        radius: 24,
+        border: 0.12,  // Bordo più ampio
+        lightness: 45,  // Più scuro = più distorsione al centro
+        blend: 'difference',
+        alpha: 0.75,  // Meno opaco = più distorsione visibile
+        blur: 6,
+        r: 0,
+        g: 15,
+        b: 30,
+      };
+
+      function buildDisplacementImageMobile(width, height) {
+        const border = Math.min(width, height) * (config.border * 0.5);
+        const svg = `<svg viewBox="0 0 ${width} ${height}" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <linearGradient id="red-mobile" x1="100%" y1="0%" x2="0%" y2="0%">
+              <stop offset="0%" stop-color="#000"/>
+              <stop offset="100%" stop-color="red"/>
+            </linearGradient>
+            <linearGradient id="blue-mobile" x1="0%" y1="0%" x2="0%" y2="100%">
+              <stop offset="0%" stop-color="#000"/>
+              <stop offset="100%" stop-color="blue"/>
+            </linearGradient>
+          </defs>
+          <rect x="0" y="0" width="${width}" height="${height}" fill="black"></rect>
+          <rect x="0" y="0" width="${width}" height="${height}" rx="${config.radius}" fill="url(#red-mobile)" />
+          <rect x="0" y="0" width="${width}" height="${height}" rx="${config.radius}" fill="url(#blue-mobile)" style="mix-blend-mode: ${config.blend}" />
+          <rect x="${border}" y="${border}" width="${width - border * 2}" height="${height - border * 2}" rx="${config.radius}" fill="hsl(0 0% ${config.lightness}% / ${config.alpha})" style="filter:blur(${config.blur}px)" />
+        </svg>`;
+        return 'data:image/svg+xml,' + encodeURIComponent(svg);
+      }
+
+      function updateFilterMobile() {
+        const rect = glassEffectMobile.getBoundingClientRect();
+        const width = Math.round(rect.width);
+        const height = Math.round(rect.height);
+
+        if (width > 0 && height > 0) {
+          const dataUri = buildDisplacementImageMobile(width, height);
+          feImageMobile.setAttribute('href', dataUri);
+          document.getElementById('redchannel-mobile')?.setAttribute('scale', config.scale + config.r);
+          document.getElementById('greenchannel-mobile')?.setAttribute('scale', config.scale + config.g);
+          document.getElementById('bluechannel-mobile')?.setAttribute('scale', config.scale + config.b);
+        }
+      }
+
+      // Pre-genera il filtro al caricamento con dimensioni stimate
+      // (il pannello è nascosto ma ha dimensioni nel DOM grazie a max-w-sm)
+      function preGenerateFilter() {
+        // Forza temporaneamente visibilità per misurare
+        const wasHidden = mobileMenu.style.display;
+        mobileMenu.style.visibility = 'hidden';
+        mobileMenu.style.opacity = '1';
+        mobileMenu.style.pointerEvents = 'none';
+        requestAnimationFrame(function() {
+          updateFilterMobile();
+          mobileMenu.style.visibility = '';
+          mobileMenu.style.opacity = '';
+          mobileMenu.style.pointerEvents = '';
+        });
+      }
+      preGenerateFilter();
+
+      // Update immediato all'apertura + refresh dopo transizione
+      if (mobileMenu) {
+        new MutationObserver(function() {
+          if (mobileMenu.classList.contains('active')) {
+            updateFilterMobile();
+            requestAnimationFrame(updateFilterMobile);
+          }
+        }).observe(mobileMenu, { attributes: true, attributeFilter: ['class'] });
+      }
+
+      // Also update on resize
+      window.addEventListener('resize', function() {
+        if (mobileMenu && mobileMenu.classList.contains('active')) {
+          updateFilterMobile();
+        }
+      });
+    })();
+  </script>
+</body>
+
+</html>

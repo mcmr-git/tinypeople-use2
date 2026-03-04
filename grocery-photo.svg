@@ -1,0 +1,68 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 160" width="200" height="160">
+  <defs>
+    <linearGradient id="fridge-bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#e8e4dc"/>
+      <stop offset="100%" stop-color="#d4cfc5"/>
+    </linearGradient>
+    <linearGradient id="shelf" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#c8c2b8"/>
+      <stop offset="100%" stop-color="#b8b2a6"/>
+    </linearGradient>
+  </defs>
+  <!-- Fridge interior -->
+  <rect width="200" height="160" rx="4" fill="url(#fridge-bg)"/>
+  <!-- Fridge light glow -->
+  <rect width="200" height="160" rx="4" fill="white" opacity="0.15"/>
+  <!-- Top shelf line -->
+  <rect x="0" y="54" width="200" height="3" fill="url(#shelf)" opacity="0.6"/>
+  <!-- Bottom shelf line -->
+  <rect x="0" y="110" width="200" height="3" fill="url(#shelf)" opacity="0.6"/>
+  <!-- Milk carton -->
+  <rect x="14" y="16" width="28" height="36" rx="2" fill="#f5f5f0" stroke="#ddd" stroke-width="0.5"/>
+  <rect x="16" y="18" width="24" height="12" rx="1" fill="#4a90d9"/>
+  <text x="28" y="27" text-anchor="middle" font-family="Arial, sans-serif" font-size="5" font-weight="700" fill="white">OAT</text>
+  <text x="28" y="33" text-anchor="middle" font-family="Arial, sans-serif" font-size="4" fill="white">MILK</text>
+  <text x="28" y="46" text-anchor="middle" font-family="Arial, sans-serif" font-size="4.5" fill="#cc3333" font-weight="600">03/05</text>
+  <!-- Cheese block -->
+  <rect x="50" y="22" width="32" height="28" rx="3" fill="#f4d03f" stroke="#e6c02a" stroke-width="0.5"/>
+  <rect x="52" y="24" width="28" height="10" rx="1" fill="#d4a017"/>
+  <text x="66" y="32" text-anchor="middle" font-family="Arial, sans-serif" font-size="5" font-weight="700" fill="white">CHEDDAR</text>
+  <text x="66" y="44" text-anchor="middle" font-family="Arial, sans-serif" font-size="4.5" fill="#886600" font-weight="600">03/12</text>
+  <!-- Egg carton -->
+  <rect x="14" y="62" width="44" height="24" rx="2" fill="#f0ebe0" stroke="#d4cfc0" stroke-width="0.5"/>
+  <g transform="translate(18, 66)">
+    <ellipse cx="5" cy="5" rx="4" ry="5" fill="#f5eed8" stroke="#d9d0bb" stroke-width="0.4"/>
+    <ellipse cx="14" cy="5" rx="4" ry="5" fill="#f5eed8" stroke="#d9d0bb" stroke-width="0.4"/>
+    <ellipse cx="23" cy="5" rx="4" ry="5" fill="#f5eed8" stroke="#d9d0bb" stroke-width="0.4"/>
+    <ellipse cx="32" cy="5" rx="4" ry="5" fill="#f5eed8" stroke="#d9d0bb" stroke-width="0.4"/>
+  </g>
+  <text x="36" y="84" text-anchor="middle" font-family="Arial, sans-serif" font-size="4.5" fill="#cc3333" font-weight="600">03/08</text>
+  <!-- Chicken package -->
+  <rect x="14" y="118" width="46" height="30" rx="3" fill="#fce4e4" stroke="#e8c0c0" stroke-width="0.5"/>
+  <rect x="16" y="120" width="42" height="12" rx="1" fill="#d94040"/>
+  <text x="37" y="128" text-anchor="middle" font-family="Arial, sans-serif" font-size="5" font-weight="700" fill="white">CHICKEN</text>
+  <text x="37" y="135" text-anchor="middle" font-family="Arial, sans-serif" font-size="3.5" fill="white">BREAST</text>
+  <text x="37" y="144" text-anchor="middle" font-family="Arial, sans-serif" font-size="4.5" fill="#cc0000" font-weight="700">03/02</text>
+  <!-- Yogurt -->
+  <rect x="96" y="18" width="24" height="34" rx="10" fill="#f0f0f0" stroke="#ddd" stroke-width="0.5"/>
+  <rect x="98" y="28" width="20" height="10" rx="1" fill="#7cb342"/>
+  <text x="108" y="36" text-anchor="middle" font-family="Arial, sans-serif" font-size="4.5" font-weight="700" fill="white">YOGURT</text>
+  <!-- Juice -->
+  <rect x="130" y="12" width="22" height="42" rx="2" fill="#ff8a00" stroke="#e67700" stroke-width="0.5"/>
+  <text x="141" y="28" text-anchor="middle" font-family="Arial, sans-serif" font-size="4" font-weight="700" fill="white">ORANGE</text>
+  <text x="141" y="34" text-anchor="middle" font-family="Arial, sans-serif" font-size="4" font-weight="700" fill="white">JUICE</text>
+  <!-- Lettuce -->
+  <ellipse cx="100" cy="78" rx="20" ry="14" fill="#6abf4b" stroke="#4a9f2b" stroke-width="0.5"/>
+  <ellipse cx="98" cy="76" rx="14" ry="10" fill="#8ed36e" opacity="0.7"/>
+  <ellipse cx="100" cy="74" rx="8" ry="6" fill="#a8e88a" opacity="0.5"/>
+  <!-- Butter -->
+  <rect x="134" y="68" width="30" height="18" rx="2" fill="#fff8dc" stroke="#e6d992" stroke-width="0.5"/>
+  <rect x="136" y="70" width="26" height="8" rx="1" fill="#f4d03f"/>
+  <text x="149" y="77" text-anchor="middle" font-family="Arial, sans-serif" font-size="4.5" font-weight="600" fill="white">BUTTER</text>
+  <!-- Water bottle -->
+  <rect x="170" y="62" width="16" height="44" rx="3" fill="#d6eeff" stroke="#a8d4f0" stroke-width="0.5"/>
+  <rect x="172" y="72" width="12" height="8" rx="1" fill="#2196f3"/>
+  <text x="178" y="78" text-anchor="middle" font-family="Arial, sans-serif" font-size="3.5" font-weight="700" fill="white">H2O</text>
+  <!-- Camera flash effect (subtle) -->
+  <rect width="200" height="160" rx="4" fill="white" opacity="0.03"/>
+</svg>
