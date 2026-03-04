@@ -5,81 +5,97 @@
   <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Use Cases - tinyNature AI Assistant</title>
-  <meta name="description" content="Explore real use cases for tinyNature, your personal AI assistant. Swipe to shortlist the ones that matter.">
+  <meta name="description" content="Explore what tinyNature can do — from saving time to knowing yourself better. Real use cases, real outcomes.">
   <link rel="icon" href="./favicon.png" type="image/png">
   <link rel="stylesheet" href="./css/root-DrZ2wtlP.css">
   <style>
-    .sticky-filter { position: sticky; top: 72px; z-index: 40; }
-    .fixed-nav { position: fixed; top: 0; left: 0; right: 0; z-index: 50; }
     body { background-color: #FDFCF8; }
+
+    /* Sticky filter bar */
+    .sticky-filter { position: sticky; top: 0; z-index: 50; }
     .filter-scroll { overflow-x: auto; -ms-overflow-style: none; scrollbar-width: none; }
     .filter-scroll::-webkit-scrollbar { display: none; }
-    .filter-pill { white-space: nowrap; }
 
-    /* ── View modes ── */
+    /* Card grid */
     .use-grid {
-      display: grid; grid-template-columns: 1fr; gap: 1.5rem;
+      display: grid; grid-template-columns: 1fr; gap: 1.25rem;
     }
-    @media (min-width: 48rem) { .use-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+    @media (min-width: 40rem) { .use-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
     @media (min-width: 64rem) { .use-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
 
-    .use-card { transition: opacity 0.25s ease, transform 0.25s ease; }
+    /* Featured grid */
+    .featured-grid {
+      display: grid; grid-template-columns: 1fr; gap: 1.25rem;
+    }
+    @media (min-width: 40rem) { .featured-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+    @media (min-width: 64rem) { .featured-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+
+    /* Card styles */
+    .use-card {
+      background: white;
+      border: 1px solid #e7e5e4;
+      border-radius: 1rem;
+      padding: 1.5rem;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+      position: relative;
+    }
+    .use-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+    }
+    .use-card:hover .card-cta {
+      opacity: 1;
+    }
+    .card-cta {
+      opacity: 0;
+      transition: opacity 0.2s ease;
+    }
+
+    /* Featured card highlight */
+    .use-card.featured {
+      border-color: #f59e0b;
+      border-width: 2px;
+      background: linear-gradient(135deg, #fffbeb 0%, white 30%);
+    }
+
+    /* Badge styles */
+    .badge-proactive {
+      background: #fff7ed; color: #c2410c; border: 1px solid #fed7aa;
+    }
+    .badge-reactive {
+      background: #f0fdfa; color: #0f766e; border: 1px solid #99f6e4;
+    }
+
+    /* Tag pills */
+    .tag-pill {
+      white-space: nowrap;
+      transition: all 0.15s ease;
+      cursor: pointer;
+    }
+    .tag-pill.active {
+      background: #1c1917 !important;
+      color: white !important;
+      border-color: #1c1917 !important;
+    }
+
+    /* Group sections */
+    .group-section { scroll-margin-top: 80px; }
+    .group-section.hidden-group { display: none; }
+
+    /* CTA section */
+    .cta-section {
+      background: linear-gradient(135deg, #1c1917 0%, #292524 100%);
+    }
+
+    /* Hide cards that don't match filter */
     .use-card.hidden-card { display: none; }
-
-    /* ── Tinder swipe mode ── */
-    .swipe-container {
-      position: relative; width: 100%; max-width: 480px; height: 400px;
-      margin: 0 auto; perspective: 1000px;
-    }
-    .swipe-card {
-      position: absolute; inset: 0; background: white; border-radius: 1.5rem;
-      border: 1px solid #e7e5e4; padding: 2rem; display: flex; flex-direction: column;
-      box-shadow: 0 8px 32px rgba(0,0,0,0.08); cursor: grab;
-      transition: transform 0.4s cubic-bezier(0.4,0,0.2,1), opacity 0.3s ease;
-      user-select: none; touch-action: pan-y;
-    }
-    .swipe-card.dragging { transition: none; cursor: grabbing; }
-    .swipe-card.exit-left {
-      transform: translateX(-150%) rotate(-20deg); opacity: 0; pointer-events: none;
-    }
-    .swipe-card.exit-right {
-      transform: translateX(150%) rotate(20deg); opacity: 0; pointer-events: none;
-    }
-    .swipe-overlay {
-      position: absolute; top: 1.5rem; right: 1.5rem; padding: 0.5rem 1rem;
-      border-radius: 0.5rem; font-weight: 700; font-size: 1.25rem; letter-spacing: 0.05em;
-      opacity: 0; transition: opacity 0.15s ease; pointer-events: none; text-transform: uppercase;
-    }
-    .overlay-yes { border: 3px solid #16a34a; color: #16a34a; }
-    .overlay-no { border: 3px solid #dc2626; color: #dc2626; }
-
-    /* Shortlisted / rejected badges on grid cards */
-    .badge-shortlisted {
-      background: #dcfce7; color: #166534; border: 1px solid #bbf7d0;
-    }
-    .badge-rejected {
-      background: #fee2e2; color: #991b1b; border: 1px solid #fecaca;
-    }
-    .badge-pending {
-      background: #f5f5f4; color: #78716c; border: 1px solid #e7e5e4;
-    }
-
-    /* Progress bar */
-    .progress-fill { transition: width 0.4s ease; }
-
-    /* Keyboard hint */
-    kbd {
-      display: inline-block; padding: 2px 6px; font-size: 11px;
-      border: 1px solid #d6d3d1; border-radius: 4px; background: #f5f5f4;
-      font-family: monospace; color: #57534e;
-    }
   </style>
 </head>
 
 <body class="font-sans antialiased bg-[#FDFCF8] text-[#1C1C1C] selection:bg-stone-200 selection:text-stone-900">
 
   <!-- Navigation -->
-  <nav class="fixed-nav bg-white border-b border-stone-100">
+  <nav class="fixed top-0 left-0 right-0 z-50 bg-white border-b border-stone-100">
     <div class="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
       <a href="./index.html" class="flex items-center gap-2">
         <svg class="w-8 h-8 rounded-full shadow-sm" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 432.02 432.02">
@@ -97,83 +113,46 @@
   </nav>
 
   <!-- Hero Section -->
-  <section class="pt-40 pb-4 px-4">
+  <section class="pt-32 pb-8 px-4">
     <div class="max-w-6xl mx-auto text-center">
       <h1 class="text-4xl md:text-5xl font-bold font-serif-title tracking-tight text-stone-900 mb-4">What can tinyNature do?</h1>
-      <p class="text-lg text-stone-500 max-w-2xl mx-auto leading-relaxed" id="hero-desc">Real use cases from real usage data and validated community insights. Swipe to shortlist.</p>
+      <p class="text-lg text-stone-500 max-w-2xl mx-auto leading-relaxed">Real use cases from real people. Organized by what you want to achieve, not what the tech does.</p>
     </div>
   </section>
 
-  <!-- Mode Toggle + Filter Bar -->
-  <div class="sticky-filter bg-[#FDFCF8] border-b border-stone-100 py-4">
+  <!-- Featured / Most Popular Section -->
+  <section class="max-w-6xl mx-auto px-4 pb-10" id="featured-section">
+    <div class="flex items-center gap-3 mb-6">
+      <span class="text-sm font-semibold text-amber-600 uppercase tracking-wider">Most Popular</span>
+      <div class="flex-1 h-px bg-stone-200"></div>
+    </div>
+    <div class="featured-grid" id="featured-grid"></div>
+  </section>
+
+  <!-- Sticky Filter Tags -->
+  <div class="sticky-filter bg-[#FDFCF8] border-b border-stone-100 py-3">
     <div class="max-w-6xl mx-auto px-4">
-      <!-- Mode toggle -->
-      <div class="flex items-center justify-between mb-3">
-        <div class="flex gap-2">
-          <button id="btn-grid" onclick="setViewMode('grid')" class="px-4 py-2 rounded-full text-sm font-medium bg-stone-900 text-white transition-colors cursor-pointer">Grid View</button>
-          <button id="btn-swipe" onclick="setViewMode('swipe')" class="px-4 py-2 rounded-full text-sm font-medium bg-stone-100 text-stone-600 hover:bg-stone-200 transition-colors cursor-pointer">Swipe Mode</button>
-        </div>
-        <div class="flex items-center gap-3">
-          <span id="shortlist-count" class="text-sm font-medium text-green-700 bg-green-50 px-3 py-1 rounded-full hidden">0 shortlisted</span>
-          <button id="btn-export" onclick="exportShortlist()" class="text-sm text-stone-500 hover:text-stone-900 transition-colors cursor-pointer hidden">Export</button>
-          <button id="btn-reset" onclick="resetDecisions()" class="text-sm text-red-400 hover:text-red-600 transition-colors cursor-pointer hidden">Reset All</button>
-        </div>
-      </div>
-      <!-- Filter pills (grid mode only) -->
-      <div id="filter-section">
-        <div class="filter-scroll flex gap-2 pb-1" id="filter-bar"></div>
-        <div class="mt-3 flex items-center justify-between">
-          <span class="text-sm text-stone-500" id="use-count"></span>
-          <div class="flex gap-2" id="status-filters">
-            <button onclick="setStatusFilter('all')" class="text-xs px-3 py-1 rounded-full bg-stone-100 text-stone-600 cursor-pointer" data-sf="all">All</button>
-            <button onclick="setStatusFilter('shortlisted')" class="text-xs px-3 py-1 rounded-full bg-green-50 text-green-700 cursor-pointer" data-sf="shortlisted">Shortlisted</button>
-            <button onclick="setStatusFilter('rejected')" class="text-xs px-3 py-1 rounded-full bg-red-50 text-red-600 cursor-pointer" data-sf="rejected">Rejected</button>
-            <button onclick="setStatusFilter('pending')" class="text-xs px-3 py-1 rounded-full bg-stone-50 text-stone-500 cursor-pointer" data-sf="pending">Undecided</button>
-          </div>
-        </div>
-      </div>
+      <div class="filter-scroll flex gap-2 pb-1" id="tag-bar"></div>
     </div>
   </div>
 
-  <!-- Card Grid View -->
-  <main class="max-w-6xl mx-auto px-4 py-8" id="grid-view">
-    <div class="use-grid" id="card-grid"></div>
-  </main>
+  <!-- Outcome Group Sections -->
+  <main class="max-w-6xl mx-auto px-4 py-8" id="groups-container"></main>
 
-  <!-- Swipe View -->
-  <div class="max-w-6xl mx-auto px-4 py-8 hidden" id="swipe-view">
-    <!-- Progress -->
-    <div class="max-w-md mx-auto mb-6">
-      <div class="flex items-center justify-between text-sm text-stone-500 mb-2">
-        <span id="swipe-progress-text">0 / 0</span>
-        <span class="flex items-center gap-2"><kbd>&larr;</kbd> Skip &nbsp; <kbd>&rarr;</kbd> Shortlist &nbsp; <kbd>&darr;</kbd> Reject</span>
-      </div>
-      <div class="w-full h-1.5 bg-stone-100 rounded-full overflow-hidden">
-        <div id="swipe-progress-bar" class="progress-fill h-full bg-stone-900 rounded-full" style="width:0%"></div>
+  <!-- Call to Action -->
+  <section class="cta-section py-20 px-4 mt-8">
+    <div class="max-w-3xl mx-auto text-center">
+      <h2 class="text-3xl md:text-4xl font-bold text-white mb-4 font-serif-title">Your AI that actually knows you.</h2>
+      <p class="text-lg text-stone-400 mb-8 leading-relaxed">tinyNature remembers your context, anticipates your needs, and acts — so you don't have to.</p>
+      <div class="flex flex-col sm:flex-row items-center justify-center gap-4">
+        <a href="https://wa.me/14242421336" target="_blank" class="bg-white text-stone-900 text-sm font-semibold px-8 py-3 rounded-full hover:bg-stone-100 transition-colors">Get early access</a>
+        <a href="https://wa.me/14242421336" target="_blank" class="text-stone-400 text-sm hover:text-white transition-colors">Already a user? Open tinyNature &rarr;</a>
       </div>
     </div>
-
-    <!-- Swipe container -->
-    <div class="swipe-container" id="swipe-container"></div>
-
-    <!-- Swipe buttons -->
-    <div class="flex items-center justify-center gap-6 mt-8">
-      <button onclick="swipeAction('reject')" class="w-16 h-16 rounded-full border-2 border-red-200 bg-red-50 flex items-center justify-center text-red-500 text-2xl font-bold hover:bg-red-100 transition-colors cursor-pointer" title="Reject">&times;</button>
-      <button onclick="swipeAction('skip')" class="w-12 h-12 rounded-full border-2 border-stone-200 bg-stone-50 flex items-center justify-center text-stone-400 text-lg hover:bg-stone-100 transition-colors cursor-pointer" title="Skip">&darr;</button>
-      <button onclick="swipeAction('shortlist')" class="w-16 h-16 rounded-full border-2 border-green-200 bg-green-50 flex items-center justify-center text-green-500 text-2xl font-bold hover:bg-green-100 transition-colors cursor-pointer" title="Shortlist">&check;</button>
-    </div>
-
-    <!-- Done state -->
-    <div id="swipe-done" class="hidden text-center py-16">
-      <div class="text-5xl mb-4">&#10003;</div>
-      <h2 class="text-2xl font-bold text-stone-900 mb-2">All done!</h2>
-      <p class="text-stone-500 mb-6" id="swipe-done-text"></p>
-      <button onclick="setViewMode('grid'); setStatusFilter('shortlisted')" class="px-6 py-3 bg-stone-900 text-white rounded-full text-sm font-medium hover:bg-stone-800 transition-colors cursor-pointer">View Shortlisted</button>
-    </div>
-  </div>
+  </section>
 
   <!-- Footer -->
-  <footer class="border-t border-stone-100 py-8 mt-8">
+  <footer class="border-t border-stone-100 py-8">
     <div class="max-w-6xl mx-auto px-4 text-center text-sm text-stone-400">
       &copy; 2025 tinyNature. All rights reserved.
     </div>
@@ -181,598 +160,350 @@
 
   <script>
     // ══════════════════════════════════════════════
-    //  USE CASE DATA — Merged & Deduplicated
+    //  USE CASE DATA
     // ══════════════════════════════════════════════
 
-    const useCases = [
-      // ── EMAIL MANAGEMENT ──
-      { id: 1, title: "Get notified only when a real person emails you", desc: "Filters out newsletters, promotions, and automated messages. You only hear about emails from actual humans that need your attention.", category: "Email Management", type: "proactive", catBg: "bg-blue-50", catText: "text-blue-700", source: "usage" },
-      { id: 2, title: "Search your inbox by context, not keywords", desc: "Find emails by describing what you're looking for in natural language — 'that email about the apartment from last month' — instead of guessing exact keywords.", category: "Email Management", type: "reactive", catBg: "bg-blue-50", catText: "text-blue-700", source: "usage" },
-      { id: 3, title: "Draft and send emails in your voice", desc: "Give a quick instruction — 'email them for quotes, 90sqm openspace, ask in Italian' — and the AI writes and sends it matching your tone.", category: "Email Management", type: "reactive", catBg: "bg-blue-50", catText: "text-blue-700", source: "usage" },
-      { id: 4, title: "Get a daily summary of important emails", desc: "Every morning, receive a digest of only the emails that matter — from real people, requiring a response — so you skip the noise.", category: "Email Management", type: "proactive", catBg: "bg-blue-50", catText: "text-blue-700", source: "usage" },
-      { id: 5, title: "Unsubscribe from services by just saying so", desc: "Say 'unsubscribe me from this' and the AI handles the unsubscribe link, confirmation email, or cancellation process.", category: "Email Management", type: "reactive", catBg: "bg-blue-50", catText: "text-blue-700", source: "usage" },
-      { id: 6, title: "Auto-forward confirmation codes and tracking numbers", desc: "2FA codes, order confirmations, and shipping updates are detected and forwarded to you instantly — no digging through email.", category: "Email Management", type: "proactive", catBg: "bg-blue-50", catText: "text-blue-700", source: "usage" },
-      { id: 7, title: "Rewrite any email in a different tone", desc: "Paste or dictate an email and have it rewritten — professional, friendly, firm, or apologetic. One of the most commonly cited AI use cases.", category: "Email Management", type: "reactive", catBg: "bg-blue-50", catText: "text-blue-700", source: "usage" },
+    const useCases = {
+      1:   { title: "Get notified only when a real person emails you", desc: "Filters out newsletters, promotions, and automated messages. You only hear about emails from actual humans.", type: "proactive" },
+      2:   { title: "Search your inbox by context, not keywords", desc: "Find emails by describing what you're looking for — 'that email about the apartment from last month.'", type: "reactive" },
+      3:   { title: "Draft and send emails in your voice", desc: "Give a quick instruction and the AI writes and sends it matching your tone.", type: "reactive" },
+      4:   { title: "Get a daily summary of important emails", desc: "Every morning, receive a digest of only the emails that matter — from real people, requiring a response.", type: "proactive" },
+      5:   { title: "Unsubscribe from services by just saying so", desc: "Say 'unsubscribe me from this' and the AI handles the unsubscribe link, confirmation, or cancellation.", type: "reactive" },
+      6:   { title: "Auto-forward confirmation codes and tracking numbers", desc: "2FA codes, order confirmations, and shipping updates detected and forwarded instantly.", type: "proactive" },
+      7:   { title: "Rewrite any email in a different tone", desc: "Have any email rewritten — professional, friendly, firm, or apologetic.", type: "reactive" },
+      8:   { title: "Add events in natural language", desc: "'Lunch with Sarah Friday at 1pm at Nobu' — calendar event created with all details.", type: "reactive" },
+      9:   { title: "Get briefed 30 minutes before every meeting", desc: "Automatic pre-meeting briefings with attendee info, agenda, and relevant context.", type: "proactive" },
+      10:  { title: "Get a morning overview of your day", desc: "Weather, calendar, key emails, reminders — delivered every morning before you ask.", type: "proactive" },
+      11:  { title: "Detect and resolve scheduling conflicts", desc: "Spots double-bookings and suggests which meeting to move, before you notice.", type: "proactive" },
+      12:  { title: "Set a one-time reminder for anything", desc: "'Remind me to buy creatine and shampoo' — simple, reliable reminders.", type: "reactive" },
+      13:  { title: "Set recurring daily reminders", desc: "Daily nudges for habits, medication, or routines.", type: "proactive" },
+      14:  { title: "Never forget a birthday", desc: "Tracks birthdays from your contacts and reminds you the day before with gift suggestions.", type: "proactive" },
+      15:  { title: "Context-aware reminders", desc: "'Remind me what I still need to do today' — a smart check-in based on your tasks and calendar.", type: "reactive" },
+      16:  { title: "Build and maintain a running shopping list", desc: "Add items by voice or text anytime. Organized by category, always up to date.", type: "reactive" },
+      17:  { title: "Track packages without digging through email", desc: "Extracts tracking numbers from emails and alerts you on delivery.", type: "proactive" },
+      18:  { title: "Product picker from a photo", desc: "Snap a photo of a store shelf plus your specific need and get the best product recommended.", type: "reactive" },
+      19:  { title: "Outfit planner from wardrobe photos", desc: "Photograph your clothes and get outfit suggestions matched to occasion, weather, and style.", type: "reactive" },
+      20:  { title: "Thoughtful gift finder", desc: "Describe someone's interests, personality, and budget — get creative, specific gift ideas.", type: "reactive" },
+      21:  { title: "Get directions by just saying where you're going", desc: "Say the destination, get a Google Maps link. No typing, no app switching.", type: "reactive" },
+      22:  { title: "Find the nearest specific type of place", desc: "'Which butcher is closest to me?' — instant answers with distance and directions.", type: "reactive" },
+      23:  { title: "Get directions sent before you need to leave", desc: "Checks your calendar and sends directions proactively so you leave on time.", type: "proactive" },
+      24:  { title: "Find a restaurant that matches your vibe", desc: "'Somewhere chill with good pasta, low light, not touristy' — the right spot based on mood.", type: "reactive" },
+      25:  { title: "Fridge leftover recipe builder", desc: "List what's in your fridge, get a recipe that doesn't require a grocery run.", type: "reactive" },
+      26:  { title: "Weekly meal plan with shopping list", desc: "A full week of meals based on dietary preferences, then a shopping list by store section.", type: "reactive" },
+      27:  { title: "Real-time cooking coach (hands-free)", desc: "Voice guidance while cooking — timing, technique, substitutions without touching your phone.", type: "reactive" },
+      28:  { title: "Personalized dietary advisor", desc: "Remembers all your allergies, diets, and preferences. Just say 'what should I eat?'", type: "reactive" },
+      29:  { title: "Track medication timing and dosages", desc: "Ask 'can I take another pill?' and the AI checks when you last took it.", type: "reactive" },
+      30:  { title: "Daily supplement reminder", desc: "Gentle daily nudge with interaction warnings if you're on other medications.", type: "proactive" },
+      31:  { title: "Describe symptoms and get practical guidance", desc: "Practical advice on what to try, when to see a doctor, and what to ask them.", type: "reactive" },
+      32:  { title: "Doctor appointment prep", desc: "Organize your symptoms, timeline, and questions before a visit.", type: "reactive" },
+      33:  { title: "Medical results explainer", desc: "Explain lab results and blood work in plain language.", type: "reactive" },
+      34:  { title: "Weight loss accountability coach", desc: "Checks in daily, tracks patterns, and keeps you honest without judgment.", type: "proactive" },
+      35:  { title: "Plant doctor", desc: "Send a photo of a sick plant, get a diagnosis and care plan.", type: "reactive" },
+      36:  { title: "Get a personalized training plan", desc: "A weekly plan that adapts based on your goals, equipment, and how you're feeling.", type: "reactive" },
+      37:  { title: "Log gym workouts by voice", desc: "'Deadlift 100kg, 5 reps' — hands-free logging without touching your phone.", type: "reactive" },
+      38:  { title: "Query your Apple Health data", desc: "'What was my resting heart rate this week?' — natural language access to health data.", type: "reactive" },
+      39:  { title: "3AM anxiety support", desc: "Voice-based breathing exercises and grounding when you can't sleep and can't call anyone.", type: "reactive" },
+      40:  { title: "Difficult conversation rehearsal", desc: "Role-play tough conversations before having them. Reduces anxiety, finds the right words.", type: "reactive" },
+      41:  { title: "Therapy session prep", desc: "Brainstorm topics and organize thoughts before a therapy appointment.", type: "reactive" },
+      42:  { title: "Daily mood voice journal", desc: "Daily voice check-in that tracks mood over time and surfaces trends.", type: "proactive" },
+      43:  { title: "Cognitive distortion checker", desc: "Voice-journal your thoughts and the AI identifies thinking patterns to help you reframe.", type: "reactive" },
+      44:  { title: "What am I best at?", desc: "The AI surfaces your underutilized strengths and where you could apply them more effectively.", type: "reactive" },
+      45:  { title: "Personal blind spot detector", desc: "Identifies cognitive patterns, limiting beliefs, and underutilized strengths you don't see.", type: "proactive" },
+      46:  { title: "Weekly behavior pattern report", desc: "A proactive summary of what topics you keep returning to, mood shifts, and recurring concerns.", type: "proactive" },
+      47:  { title: "Eisenhower matrix task sorter", desc: "Dump your entire to-do list and have it categorized into Urgent-Important quadrants.", type: "reactive" },
+      48:  { title: "Energy-based schedule builder", desc: "Redesigns your schedule around peak performance windows instead of arbitrary time blocks.", type: "reactive" },
+      49:  { title: "Weekly accountability partner", desc: "Honest analysis of whether your actions match your priorities.", type: "proactive" },
+      50:  { title: "Decision resolver", desc: "For any decision — trivial or major — get an in-depth pros-and-cons breakdown.", type: "reactive" },
+      51:  { title: "See their side (conflict resolution)", desc: "Describe a disagreement and genuinely understand the other person's perspective.", type: "reactive" },
+      52:  { title: "Career pivot coach", desc: "Get coached through career decisions based on your skills, interests, and history.", type: "reactive" },
+      53:  { title: "Salary negotiation coach", desc: "Simulate salary conversations where the AI plays your manager and gives feedback.", type: "reactive" },
+      54:  { title: "Landlord dispute letter drafter", desc: "Describe the situation. Get a firm, professional letter ready to send.", type: "reactive" },
+      55:  { title: "Contract and fine print analyzer", desc: "Paste any contract and get a plain-English breakdown of the risks.", type: "reactive" },
+      56:  { title: "Consumer complaint escalation", desc: "Draft escalation emails referencing consumer protection rights.", type: "reactive" },
+      57:  { title: "Language practice partner", desc: "Hold conversations in any language with real-time corrections. Voice-first, not text.", type: "reactive" },
+      58:  { title: "Explain anything like I'm five", desc: "Break down any complex topic into simple, clear language.", type: "reactive" },
+      59:  { title: "Textbook chapter summarizer + quiz generator", desc: "Summarize any chapter, then generate practice questions to test yourself.", type: "reactive" },
+      60:  { title: "Voice flashcard quizzer", desc: "Generate flashcard-style Q&A from any topic. Study by voice during walks or commutes.", type: "reactive" },
+      61:  { title: "Personalized bedtime stories", desc: "Custom stories with your kid's name, favorite characters, and a moral lesson.", type: "reactive" },
+      62:  { title: "On-demand homework tutor", desc: "24/7 voice tutor for kids — math, science, extra practice problems.", type: "reactive" },
+      63:  { title: "Kid activity generator", desc: "Age-appropriate activities, scavenger hunts, car ride games on demand.", type: "reactive" },
+      64:  { title: "Parenting situation advisor", desc: "Real-time advice on tantrums, sibling conflicts, screen time — judgment-free.", type: "reactive" },
+      65:  { title: "Voice note transcription", desc: "Send a voice note, get it transcribed, cleaned up, and organized.", type: "reactive" },
+      66:  { title: "Meeting notes from a voice ramble", desc: "Ramble about a meeting and get structured notes with action items.", type: "reactive" },
+      67:  { title: "Handwritten notes transcriber", desc: "Photo of messy notes gets transcribed, organized, and summarized.", type: "reactive" },
+      68:  { title: "Draft a video script in your voice", desc: "Give a topic, get a script that sounds like you.", type: "reactive" },
+      69:  { title: "Reply suggestion from a screenshot", desc: "Send a screenshot of a message and get a suggested reply matched to tone.", type: "reactive" },
+      70:  { title: "Ask any factual question — no app switching", desc: "Quick answers to anything without leaving what you're doing.", type: "reactive" },
+      71:  { title: "Summarize any URL", desc: "Paste a link and get the key points in seconds.", type: "reactive" },
+      72:  { title: "Deep research sprint", desc: "'Research this topic for me' — sourced findings, key arguments, and a summary.", type: "reactive" },
+      73:  { title: "Weather contextualized to your plans", desc: "Not just 'it'll rain' but 'it'll rain during your outdoor meeting.'", type: "proactive" },
+      74:  { title: "Social advice in real-time", desc: "In-the-moment guidance on tricky social situations.", type: "reactive" },
+      75:  { title: "What to do tonight in your city", desc: "Events, restaurants, and activities personalized to your interests and location.", type: "reactive" },
+      76:  { title: "Profile someone before a meeting", desc: "Quick research on someone's public profile and interests before a first meeting.", type: "reactive" },
+      77:  { title: "Create a tracking spreadsheet by describing it", desc: "Describe what you need tracked — the AI builds the structure and populates it.", type: "reactive" },
+      78:  { title: "Write long documents by dictating", desc: "Describe or dictate a document and have it created with proper formatting.", type: "reactive" },
+      79:  { title: "Log ideas to a running document", desc: "Say it out loud. The AI adds it to your running ideas doc.", type: "reactive" },
+      80:  { title: "Translate a photo of text instantly", desc: "Point your camera at a sign, menu, or document — instant translation.", type: "reactive" },
+      81:  { title: "Quick word lookups between languages", desc: "Instant translations without switching apps.", type: "reactive" },
+      82:  { title: "Email contractors for quotes", desc: "Describe the job, the AI drafts and sends a professional quote request.", type: "reactive" },
+      83:  { title: "Track apartment maintenance tasks", desc: "Running list of repairs with reminders when things are overdue.", type: "proactive" },
+      84:  { title: "Check if a train or flight is on time", desc: "Quick real-time status checks without hunting through apps.", type: "reactive" },
+      85:  { title: "Add travel bookings to calendar automatically", desc: "Forward a booking confirmation — dates, times, locations added to your calendar.", type: "proactive" },
+      86:  { title: "Ramble a thought, AI extracts the actionable parts", desc: "Talk freely. The AI structures it into decisions, action items, and follow-ups.", type: "reactive" },
+      87:  { title: "Hands-free briefings", desc: "Get spoken updates while cooking, commuting, or winding down.", type: "proactive" },
+      88:  { title: "Research an investor before a meeting", desc: "Automatic briefing on their fund thesis, recent investments, and alignment.", type: "proactive" },
+      89:  { title: "Build a Google Sheet of target investors", desc: "Find and organize 100+ relevant investors with filtering by sector and geography.", type: "reactive" },
+      90:  { title: "Simulate a VC reading your pitch", desc: "The AI plays a critical VC and tears apart your pitch so you can fix it.", type: "reactive" },
+      91:  { title: "Expense tracking via text", desc: "Just say what you spent. It logs, categorizes, and spots patterns.", type: "reactive" },
+      92:  { title: "Subscription renewal alerts", desc: "Warns you before you get charged — giving you time to cancel.", type: "proactive" },
+      93:  { title: "Dream journal from morning voice notes", desc: "Send a voice note each morning. The AI transcribes and organizes your dreams.", type: "proactive" },
+      94:  { title: "NatureDex — a real-life Pokedex for nature", desc: "Snap a photo of any animal or plant. The AI identifies it and builds your personal encyclopedia.", type: "reactive" },
+      95:  { title: "Morning brain dump", desc: "Dump everything swirling in your head. The AI sorts it into urgent vs important.", type: "reactive" },
+      96:  { title: "Conversational journaling", desc: "Talk about your day. The AI logs a structured journal entry and tracks trends.", type: "proactive" },
+      97:  { title: "Pattern-based nudges", desc: "tinyNature notices behavioral patterns and gently nudges you toward your goals.", type: "proactive" },
+      98:  { title: "Opportunity alerts", desc: "Connects your wishes to real-world opportunities as they appear.", type: "proactive" },
+      99:  { title: "Milestone celebrations + personal records", desc: "Notices achievements you haven't tracked consciously and celebrates them.", type: "proactive" },
+      100: { title: "Financial intelligence — spending anomaly detection", desc: "Flags unusual spending before it becomes a problem.", type: "proactive" },
+      101: { title: "Living book advisor", desc: "Tell the AI to study a book. Query it against real-life situations.", type: "reactive" },
+      102: { title: "Mentor mode — 'what would they say?'", desc: "Describe someone you admire. Get 'what would they say about this?' grounded in your context.", type: "reactive" },
+      103: { title: "Meal and nutrition log from photos", desc: "Send a photo or say what you had — logged with rough macros and weekly trends.", type: "reactive" },
+      104: { title: "Personal CRM — networking tracker", desc: "Log meetings with people. Builds a personal relationship database with follow-up reminders.", type: "reactive" },
+      105: { title: "Social event planner", desc: "'Organize a dinner for 6 Saturday' — checks calendar, drafts messages, tracks RSVPs.", type: "reactive" },
+      106: { title: "Health pattern detection", desc: "Cross-references mood, sleep, fitness, and food to surface potential health patterns.", type: "proactive" },
+      107: { title: "Gratitude and wins log", desc: "Daily prompt: 'What went well today?' On bad days, surfaces past wins.", type: "proactive" },
+      108: { title: "Life audit — stated vs. revealed priorities", desc: "Analyzes what you say your priorities are vs how you actually spend your time.", type: "proactive" },
+      109: { title: "Niche interest companion", desc: "Passionate about something niche? The AI remembers, engages deeply, and builds on it.", type: "reactive" },
+      110: { title: "Year-in-review generator", desc: "Compiles all tracked data into a personal annual report. Your Spotify Wrapped for life.", type: "proactive" },
+      111: { title: "Auto-capture wishlist", desc: "Catches purchase intent from natural conversation. You never say 'add this' — it just notices.", type: "proactive" },
+      112: { title: "Gift ideas auto-capture", desc: "Stores gift ideas under each person's name. Surfaces before birthdays and holidays.", type: "proactive" },
+      113: { title: "Watch and listen list", desc: "Movies, shows, podcasts mentioned in passing — captured and organized automatically.", type: "proactive" },
+      114: { title: "Trip and experience bucket list", desc: "Your personal bucket list that builds itself from conversation.", type: "proactive" },
+      115: { title: "Turn any chat into a structured doc", desc: "Say 'turn this into a doc' and get a structured Google Doc from the thread.", type: "reactive" },
+      116: { title: "Interview prep role-play", desc: "The AI plays the interviewer, asks tough questions, and gives feedback.", type: "reactive" },
+      117: { title: "Move and relocation assistant", desc: "Tracks every task of moving in one place. Sends reminders, keeps everything organized.", type: "proactive" },
+      118: { title: "Couples budget tracker", desc: "Both partners report expenses — shared tracking with progress toward shared goals.", type: "proactive" },
+      119: { title: "Roommate expense splitting", desc: "Tracks who owes who, maintains a running balance, sends settlement reminders.", type: "proactive" },
+      120: { title: "Shared trip planning", desc: "Collects preferences, finds dates, builds an itinerary, and tracks shared budget.", type: "reactive" },
+      121: { title: "Family hub — household operating system", desc: "Shared calendar, grocery lists, chore tracking — the household OS, automated.", type: "proactive" },
+      122: { title: "Proactive calendar optimization", desc: "Suggests batching meetings, protecting deep work, and flags overcommitment.", type: "proactive" },
+      123: { title: "Weekly review and wrap-up", desc: "Every Sunday, a combined review of your calendar, emails, trackers, and goals.", type: "proactive" },
+      124: { title: "Reading log + living library", desc: "Logs books with your reactions. Ask 'what did I think of that book?' and get your own review.", type: "reactive" },
+      125: { title: "Roast me based on our conversations", desc: "Brutally accurate, uncomfortably funny roasts based on your habits and contradictions.", type: "reactive" },
+      126: { title: "What do I not know about myself?", desc: "Surfaces hidden patterns and blind spots from your conversation history.", type: "reactive" },
+      127: { title: "Five questions for my future self", desc: "Forces deep reflection on where you're heading.", type: "reactive" },
+      128: { title: "Red flags in how I communicate", desc: "Analyzes your communication patterns and mirrors them back.", type: "reactive" },
+    };
 
-      // ── CALENDAR & SCHEDULING ──
-      { id: 8, title: "Add events in natural language", desc: "'Lunch with Sarah Friday at 1pm at Nobu' — the AI creates the calendar event with all the details filled in.", category: "Calendar & Scheduling", type: "reactive", catBg: "bg-purple-50", catText: "text-purple-700", source: "usage" },
-      { id: 9, title: "Get briefed 30 minutes before every meeting", desc: "Automatic pre-meeting briefings with attendee info, agenda, and relevant context — so you walk in prepared.", category: "Calendar & Scheduling", type: "proactive", catBg: "bg-purple-50", catText: "text-purple-700", source: "usage" },
-      { id: 10, title: "Get a morning overview of your day", desc: "Weather, calendar, key emails, reminders, and anything you need to know — delivered every morning before you ask.", category: "Calendar & Scheduling", type: "proactive", catBg: "bg-purple-50", catText: "text-purple-700", source: "usage" },
-      { id: 11, title: "Detect and resolve scheduling conflicts", desc: "The AI spots double-bookings and suggests which meeting to move, before you even notice the conflict.", category: "Calendar & Scheduling", type: "proactive", catBg: "bg-purple-50", catText: "text-purple-700", source: "usage" },
+    // ══════════════════════════════════════════════
+    //  FEATURED USE CASES
+    // ══════════════════════════════════════════════
 
-      // ── REMINDERS & TRIGGERS ──
-      { id: 12, title: "Set a one-time reminder for anything", desc: "'Remind me to buy creatine and shampoo' — simple, reliable reminders with no app needed.", category: "Reminders & Triggers", type: "reactive", catBg: "bg-amber-50", catText: "text-amber-600", source: "usage" },
-      { id: 13, title: "Set recurring daily reminders", desc: "Daily nudges for habits, medication, or routines — 'remind me to take supplements every morning at 9.'", category: "Reminders & Triggers", type: "proactive", catBg: "bg-amber-50", catText: "text-amber-600", source: "usage" },
-      { id: 14, title: "Never forget a birthday", desc: "The AI tracks birthdays from your contacts and conversations, and reminds you the day before with gift suggestions.", category: "Reminders & Triggers", type: "proactive", catBg: "bg-amber-50", catText: "text-amber-600", source: "usage" },
-      { id: 15, title: "Context-aware reminders", desc: "'Remind me what I still need to do today' — the AI knows your tasks, calendar, and pending items and gives you a smart check-in.", category: "Reminders & Triggers", type: "reactive", catBg: "bg-amber-50", catText: "text-amber-600", source: "usage" },
+    const featuredIds = [34, 91, 100, 10, 97, 54, 55, 87];
 
-      // ── SHOPPING & ORDERS ──
-      { id: 16, title: "Build and maintain a running shopping list", desc: "Add items by voice or text anytime. The list lives in a shared doc, organized by category, always up to date.", category: "Shopping & Orders", type: "reactive", catBg: "bg-orange-50", catText: "text-orange-600", source: "usage" },
-      { id: 17, title: "Track packages without digging through email", desc: "The AI extracts tracking numbers from your emails and alerts you when packages are out for delivery or arrive.", category: "Shopping & Orders", type: "proactive", catBg: "bg-orange-50", catText: "text-orange-600", source: "usage" },
-      { id: 18, title: "Product picker from a photo", desc: "Snap a photo of a store shelf plus your specific need (hair type, skin condition) and get the best product recommended. Works surprisingly well.", category: "Shopping & Orders", type: "reactive", catBg: "bg-orange-50", catText: "text-orange-600", source: "usage" },
-      { id: 19, title: "Outfit planner from wardrobe photos", desc: "Photograph your clothes and get outfit suggestions matched to the occasion, weather, and your style. Great for dates, interviews, and travel packing.", category: "Shopping & Orders", type: "reactive", catBg: "bg-orange-50", catText: "text-orange-600", source: "usage" },
-      { id: 20, title: "Thoughtful gift finder", desc: "Describe someone's interests, personality, and budget — get creative, specific gift ideas. Users report suggestions that 'turned out to be a hit.'", category: "Shopping & Orders", type: "reactive", catBg: "bg-orange-50", catText: "text-orange-600", source: "usage" },
+    // ══════════════════════════════════════════════
+    //  OUTCOME GROUPS
+    // ══════════════════════════════════════════════
 
-      // ── NAVIGATION ──
-      { id: 21, title: "Get directions by just saying where you're going", desc: "Say the destination, get a Google Maps link. No typing addresses, no opening apps.", category: "Navigation", type: "reactive", catBg: "bg-green-50", catText: "text-green-700", source: "usage" },
-      { id: 22, title: "Find the nearest specific type of place", desc: "'Which butcher is closest to me?' — instant answers with distance and directions.", category: "Navigation", type: "reactive", catBg: "bg-green-50", catText: "text-green-700", source: "usage" },
-      { id: 23, title: "Get directions sent before you need to leave", desc: "The AI checks your calendar and sends directions proactively so you leave on time.", category: "Navigation", type: "proactive", catBg: "bg-green-50", catText: "text-green-700", source: "usage" },
-
-      // ── FOOD & COOKING ──
-      { id: 24, title: "Find a restaurant that matches your vibe", desc: "'Somewhere chill with good pasta, low light, not touristy' — the AI finds the right spot based on mood, not just ratings.", category: "Food & Cooking", type: "reactive", catBg: "bg-red-50", catText: "text-red-600", source: "usage" },
-      { id: 25, title: "Fridge leftover recipe builder", desc: "List what's in your fridge, get a recipe that doesn't require a grocery run. One user said it 'changed my life.'", category: "Food & Cooking", type: "reactive", catBg: "bg-red-50", catText: "text-red-600", source: "usage" },
-      { id: 26, title: "Weekly meal plan with shopping list", desc: "Generate a full week of meals based on dietary preferences, then a shopping list organized by store section. One of the most popular productivity hacks.", category: "Food & Cooking", type: "reactive", catBg: "bg-red-50", catText: "text-red-600", source: "usage" },
-      { id: 27, title: "Real-time cooking coach (hands-free)", desc: "Voice guidance while cooking — timing, technique, substitutions. 'How long do I sear this?' without touching your phone.", category: "Food & Cooking", type: "reactive", catBg: "bg-red-50", catText: "text-red-600", source: "usage" },
-      { id: 28, title: "Personalized dietary advisor", desc: "The AI remembers all your allergies, diets, and preferences. Just say 'what should I eat?' and get a tailored suggestion.", category: "Food & Cooking", type: "reactive", catBg: "bg-red-50", catText: "text-red-600", source: "usage" },
-
-      // ── HEALTH & WELLNESS ──
-      { id: 29, title: "Track medication timing and dosages", desc: "Ask 'can I take another pill?' and the AI checks when you last took it and the recommended interval.", category: "Health & Wellness", type: "reactive", catBg: "bg-teal-50", catText: "text-teal-700", source: "usage" },
-      { id: 30, title: "Daily supplement reminder", desc: "Gentle daily nudge to take your supplements, with interaction warnings if you're on other medications.", category: "Health & Wellness", type: "proactive", catBg: "bg-teal-50", catText: "text-teal-700", source: "usage" },
-      { id: 31, title: "Describe symptoms and get practical guidance", desc: "Not a diagnosis — but practical advice on what to try, when to see a doctor, and what to ask them.", category: "Health & Wellness", type: "reactive", catBg: "bg-teal-50", catText: "text-teal-700", source: "usage" },
-      { id: 32, title: "Doctor appointment prep", desc: "Organize your symptoms, timeline, and questions before a visit. Turns appointments into 'action-planning sessions' instead of fumbling for details.", category: "Health & Wellness", type: "reactive", catBg: "bg-teal-50", catText: "text-teal-700", source: "usage" },
-      { id: 33, title: "Medical results explainer", desc: "Explain lab results and blood work in plain language. Simplifies jargon so you understand what to discuss with your doctor.", category: "Health & Wellness", type: "reactive", catBg: "bg-teal-50", catText: "text-teal-700", source: "usage" },
-      { id: 34, title: "Weight loss accountability coach", desc: "Track calories, get pep talks, advise on supplements, and celebrate progress. One user lost 40 lbs with AI coaching — 'absolutely invaluable.'", category: "Health & Wellness", type: "proactive", catBg: "bg-teal-50", catText: "text-teal-700", source: "usage" },
-      { id: 35, title: "Plant doctor", desc: "Send a photo of a sick plant, get a diagnosis and care plan. Users report it's 'a much better plant doctor than anything else.'", category: "Health & Wellness", type: "reactive", catBg: "bg-teal-50", catText: "text-teal-700", source: "usage" },
-
-      // ── FITNESS ──
-      { id: 36, title: "Get a personalized training plan", desc: "A weekly plan that adapts based on your goals, equipment, and how you're feeling. Adjusts in real-time.", category: "Fitness", type: "reactive", catBg: "bg-emerald-50", catText: "text-emerald-700", source: "usage" },
-      { id: 37, title: "Log gym workouts by voice", desc: "'Deadlift 100kg, 5 reps. Incline press 30kg per arm, 4 sets.' — hands-free logging without touching your phone between sets.", category: "Fitness", type: "reactive", catBg: "bg-emerald-50", catText: "text-emerald-700", source: "usage" },
-      { id: 38, title: "Query your Apple Health data", desc: "'What was my resting heart rate this week?' 'How many steps yesterday?' — natural language access to all your health data.", category: "Fitness", type: "reactive", catBg: "bg-emerald-50", catText: "text-emerald-700", source: "usage" },
-
-      // ── MENTAL HEALTH & WELLBEING ──
-      { id: 39, title: "3AM anxiety support", desc: "Voice-based breathing exercises and grounding when you can't sleep and can't call anyone. Users describe it as 'the only thing available at 3am.'", category: "Mental Health & Wellbeing", type: "reactive", catBg: "bg-violet-50", catText: "text-violet-700", source: "usage" },
-      { id: 40, title: "Difficult conversation rehearsal", desc: "Role-play tough conversations — with a boss, partner, or family member — before having them. Reduces anxiety and helps find the right words.", category: "Mental Health & Wellbeing", type: "reactive", catBg: "bg-violet-50", catText: "text-violet-700", source: "usage" },
-      { id: 41, title: "Therapy session prep", desc: "Brainstorm topics and organize thoughts before a therapy appointment. Helps users arrive more prepared and get more from sessions.", category: "Mental Health & Wellbeing", type: "reactive", catBg: "bg-violet-50", catText: "text-violet-700", source: "usage" },
-      { id: 42, title: "Daily mood voice journal", desc: "Daily voice check-in that tracks mood over time and surfaces trends. The AI asks 'how are you feeling?' and builds a pattern picture across weeks.", category: "Mental Health & Wellbeing", type: "proactive", catBg: "bg-violet-50", catText: "text-violet-700", source: "usage" },
-      { id: 43, title: "Cognitive distortion checker", desc: "Voice-journal your thoughts and the AI gently identifies thinking patterns — catastrophizing, black-and-white thinking, mind-reading — to help you reframe.", category: "Mental Health & Wellbeing", type: "reactive", catBg: "bg-violet-50", catText: "text-violet-700", source: "usage" },
-
-      // ── SELF-KNOWLEDGE ──
-      { id: 44, title: "What am I best at?", desc: "'Everyone in the world is best at something — given all you know about me, what am I best at?' The AI surfaces your underutilized strengths and where you could apply them more effectively.", category: "Self-Knowledge", type: "reactive", catBg: "bg-fuchsia-50", catText: "text-fuchsia-700", source: "usage" },
-      { id: 125, title: "Roast me based on our conversations", desc: "Ask the AI to roast you based on everything it knows — your habits, patterns, contradictions. The results are brutally accurate, uncomfortably funny, and surprisingly useful for self-awareness.", category: "Self-Knowledge", type: "reactive", catBg: "bg-fuchsia-50", catText: "text-fuchsia-700", source: "usage" },
-      { id: 126, title: "What do I not know about myself?", desc: "'What do you know about me that I might not know about myself?' The AI surfaces hidden patterns, recurring themes, and blind spots from your conversation history that you've never consciously noticed.", category: "Self-Knowledge", type: "reactive", catBg: "bg-fuchsia-50", catText: "text-fuchsia-700", source: "usage" },
-      { id: 127, title: "Five questions for my future self", desc: "'Based on everything you know about me, create five questions to ask my future self.' Forces deep reflection on where you're heading — users describe the responses as 'shook me a little.'", category: "Self-Knowledge", type: "reactive", catBg: "bg-fuchsia-50", catText: "text-fuchsia-700", source: "usage" },
-      { id: 128, title: "Red flags in how I communicate", desc: "'Tell me my biggest red flags based on how I talk to you.' The AI analyzes your communication patterns — over-apologizing, overexplaining, asking the same anxious question multiple ways — and mirrors them back.", category: "Self-Knowledge", type: "reactive", catBg: "bg-fuchsia-50", catText: "text-fuchsia-700", source: "usage" },
-      { id: 45, title: "Personal blind spot detector", desc: "The AI identifies cognitive patterns, limiting beliefs, and underutilized strengths you don't see in yourself — based on weeks of conversation.", category: "Self-Knowledge", type: "proactive", catBg: "bg-fuchsia-50", catText: "text-fuchsia-700", source: "usage" },
-      { id: 46, title: "Weekly behavior pattern report", desc: "A proactive summary of what topics you keep returning to, mood shifts, and recurring concerns — surfaced automatically so you can see your own patterns.", category: "Self-Knowledge", type: "proactive", catBg: "bg-fuchsia-50", catText: "text-fuchsia-700", source: "usage" },
-
-      // ── LIFE COACHING & DECISIONS ──
-      { id: 47, title: "Eisenhower matrix task sorter", desc: "Dump your entire to-do list and have it categorized into Urgent-Important quadrants. One of the most cited productivity hacks.", category: "Life Coaching & Decisions", type: "reactive", catBg: "bg-indigo-50", catText: "text-indigo-700", source: "usage" },
-      { id: 48, title: "Energy-based schedule builder", desc: "Describe your day with energy levels and the AI redesigns your schedule around peak performance windows instead of arbitrary time blocks.", category: "Life Coaching & Decisions", type: "reactive", catBg: "bg-indigo-50", catText: "text-indigo-700", source: "usage" },
-      { id: 49, title: "Weekly accountability partner", desc: "Share your week every Sunday, get honest analysis of whether your actions match your priorities. 'Shows the truth based on actions, not intentions.'", category: "Life Coaching & Decisions", type: "proactive", catBg: "bg-indigo-50", catText: "text-indigo-700", source: "usage" },
-      { id: 50, title: "Decision resolver", desc: "For any decision — trivial or major — get an in-depth pros-and-cons breakdown. Users love it for everything from 'gym vs. walk the dog' to major life choices.", category: "Life Coaching & Decisions", type: "reactive", catBg: "bg-indigo-50", catText: "text-indigo-700", source: "usage" },
-      { id: 51, title: "See their side (conflict resolution)", desc: "Describe a disagreement and the AI helps you genuinely understand the other person's perspective. Praised for resolving real disputes with friends and family.", category: "Life Coaching & Decisions", type: "reactive", catBg: "bg-indigo-50", catText: "text-indigo-700", source: "usage" },
-      { id: 52, title: "Career pivot coach", desc: "Based on your skills, interests, and conversation history, get coached through career decisions. One user landed a job after the AI 'coached me through my feelings about a missed opportunity.'", category: "Life Coaching & Decisions", type: "reactive", catBg: "bg-indigo-50", catText: "text-indigo-700", source: "usage" },
-
-      // ── NEGOTIATION & LEGAL ──
-      { id: 53, title: "Salary negotiation coach", desc: "Simulate salary conversations where the AI plays your manager, grades your responses, and gives feedback using negotiation science.", category: "Negotiation & Legal", type: "reactive", catBg: "bg-amber-50", catText: "text-amber-700", source: "usage" },
-      { id: 54, title: "Landlord dispute letter drafter", desc: "Draft legally-informed letters citing relevant local laws. A NYC tenant got broken appliances fixed after 2 years; another user won $1,180 in small claims court.", category: "Negotiation & Legal", type: "reactive", catBg: "bg-amber-50", catText: "text-amber-700", source: "usage" },
-      { id: 55, title: "Contract and fine print analyzer", desc: "Read through lease agreements, service contracts, or terms of service and flag concerning clauses. Users saved thousands catching hidden fees.", category: "Negotiation & Legal", type: "reactive", catBg: "bg-amber-50", catText: "text-amber-700", source: "usage" },
-      { id: 56, title: "Consumer complaint escalation", desc: "Draft escalation emails referencing consumer protection rights. Users report getting refunds that months of phone calls couldn't achieve.", category: "Negotiation & Legal", type: "reactive", catBg: "bg-amber-50", catText: "text-amber-700", source: "usage" },
-
-      // ── LEARNING & EDUCATION ──
-      { id: 57, title: "Language practice partner", desc: "Hold conversations in any language with real-time corrections. Voice-first makes this a genuine conversation partner, not a text exercise. Users went from A1 to B2.", category: "Learning & Education", type: "reactive", catBg: "bg-sky-50", catText: "text-sky-700", source: "usage" },
-      { id: 58, title: "Explain anything like I'm five", desc: "Break down any complex topic — finance, science, legal jargon, medical terms — into simple, clear language. Widely considered the most universally useful AI capability.", category: "Learning & Education", type: "reactive", catBg: "bg-sky-50", catText: "text-sky-700", source: "usage" },
-      { id: 59, title: "Textbook chapter summarizer + quiz generator", desc: "Summarize any chapter, then generate practice questions to test yourself. Students cite this as their top study hack.", category: "Learning & Education", type: "reactive", catBg: "bg-sky-50", catText: "text-sky-700", source: "usage" },
-      { id: 60, title: "Voice flashcard quizzer", desc: "Generate flashcard-style Q&A from any topic. The AI quizzes you by voice during walks or commutes — studying without a screen.", category: "Learning & Education", type: "reactive", catBg: "bg-sky-50", catText: "text-sky-700", source: "usage" },
-
-      // ── PARENTING ──
-      { id: 61, title: "Personalized bedtime stories", desc: "Custom stories with your kid's name, favorite characters, and a moral lesson — told aloud. Perfect for parents who can't think up new stories after long days.", category: "Parenting", type: "reactive", catBg: "bg-pink-50", catText: "text-pink-600", source: "usage" },
-      { id: 62, title: "On-demand homework tutor", desc: "24/7 voice tutor for kids — explain math concepts, help with science questions, provide extra practice problems. 'An on-demand tutor available anytime.'", category: "Parenting", type: "reactive", catBg: "bg-pink-50", catText: "text-pink-600", source: "usage" },
-      { id: 63, title: "Kid activity generator", desc: "Age-appropriate activities, scavenger hunts, car ride games, and rainy-day projects on demand. Parents swear by it for long waits and weekends.", category: "Parenting", type: "reactive", catBg: "bg-pink-50", catText: "text-pink-600", source: "usage" },
-      { id: 64, title: "Parenting situation advisor", desc: "Real-time advice on tantrums, sibling conflicts, screen time boundaries. Remembers your family context and parenting style — a judgment-free sounding board.", category: "Parenting", type: "reactive", catBg: "bg-pink-50", catText: "text-pink-600", source: "usage" },
-
-      // ── WRITING & CONTENT ──
-      { id: 65, title: "Voice note transcription", desc: "Send a voice note, get it transcribed, cleaned up, and organized. Turns rambly audio into structured text.", category: "Writing & Content", type: "reactive", catBg: "bg-cyan-50", catText: "text-cyan-700", source: "usage" },
-      { id: 66, title: "Meeting notes from a voice ramble", desc: "Ramble about a meeting you just had and get structured notes with action items, decisions made, and follow-ups.", category: "Writing & Content", type: "reactive", catBg: "bg-cyan-50", catText: "text-cyan-700", source: "usage" },
-      { id: 67, title: "Handwritten notes transcriber", desc: "Photo of messy handwritten meeting notes gets transcribed, organized, and summarized into action items.", category: "Writing & Content", type: "reactive", catBg: "bg-cyan-50", catText: "text-cyan-700", source: "usage" },
-      { id: 68, title: "Draft a video script in your voice", desc: "Give a topic or outline, get a script that sounds like you. The AI learns your style from past conversations.", category: "Writing & Content", type: "reactive", catBg: "bg-cyan-50", catText: "text-cyan-700", source: "usage" },
-      { id: 69, title: "Reply suggestion from a screenshot", desc: "Send a screenshot of a message and get a suggested reply — matched to tone and context.", category: "Writing & Content", type: "reactive", catBg: "bg-cyan-50", catText: "text-cyan-700", source: "usage" },
-
-      // ── RESEARCH ──
-      { id: 70, title: "Ask any factual question — no app switching", desc: "Quick answers to anything without leaving what you're doing. Like having a research assistant on speed dial.", category: "Research", type: "reactive", catBg: "bg-stone-100", catText: "text-stone-700", source: "usage" },
-      { id: 71, title: "Summarize any URL", desc: "Paste a link and get the key points in seconds — articles, papers, long threads, YouTube videos.", category: "Research", type: "reactive", catBg: "bg-stone-100", catText: "text-stone-700", source: "usage" },
-      { id: 72, title: "Deep research sprint", desc: "'I have 20 minutes. Research this topic for me.' — the AI returns sourced findings, key arguments, and a summary.", category: "Research", type: "reactive", catBg: "bg-stone-100", catText: "text-stone-700", source: "usage" },
-      { id: 73, title: "Weather contextualized to your plans", desc: "Not just 'it'll rain Thursday' but 'it'll rain during your outdoor meeting — might want to move it inside.'", category: "Research", type: "proactive", catBg: "bg-stone-100", catText: "text-stone-700", source: "usage" },
-
-      // ── SOCIAL & RELATIONSHIPS ──
-      { id: 74, title: "Social advice in real-time", desc: "Get in-the-moment guidance on tricky social situations — what to say, how to respond, how to navigate awkwardness.", category: "Social & Relationships", type: "reactive", catBg: "bg-rose-50", catText: "text-rose-600", source: "usage" },
-      { id: 75, title: "What to do tonight in your city", desc: "Events, restaurants, bars, and activities personalized to your interests and location — not generic tourist lists.", category: "Social & Relationships", type: "reactive", catBg: "bg-rose-50", catText: "text-rose-600", source: "usage" },
-      { id: 76, title: "Profile someone before a meeting", desc: "Quick research on someone's public profile, interests, and recent activity before a first meeting or date.", category: "Social & Relationships", type: "reactive", catBg: "bg-rose-50", catText: "text-rose-600", source: "usage" },
-
-      // ── DOCUMENTS & SPREADSHEETS ──
-      { id: 77, title: "Create a tracking spreadsheet by describing it", desc: "'Create a Google Sheet that tracks competitors and scores them' — the AI builds the structure and populates it.", category: "Documents & Spreadsheets", type: "reactive", catBg: "bg-blue-50", catText: "text-blue-700", source: "usage" },
-      { id: 78, title: "Write long documents by dictating", desc: "Describe or dictate a document and have it created in Google Docs with proper formatting.", category: "Documents & Spreadsheets", type: "reactive", catBg: "bg-blue-50", catText: "text-blue-700", source: "usage" },
-      { id: 79, title: "Log ideas to a running document", desc: "Whenever inspiration strikes, say it out loud. The AI adds it to your running ideas doc — organized and searchable.", category: "Documents & Spreadsheets", type: "reactive", catBg: "bg-blue-50", catText: "text-blue-700", source: "usage" },
-
-      // ── TRANSLATION ──
-      { id: 80, title: "Translate a photo of text instantly", desc: "Point your camera at a sign, menu, or document in any language — get an instant translation.", category: "Translation", type: "reactive", catBg: "bg-yellow-50", catText: "text-yellow-700", source: "usage" },
-      { id: 81, title: "Quick word lookups between languages", desc: "Instant translations without switching apps. Ask in any language, get the answer in any language.", category: "Translation", type: "reactive", catBg: "bg-yellow-50", catText: "text-yellow-700", source: "usage" },
-
-      // ── HOME MANAGEMENT ──
-      { id: 82, title: "Email contractors for quotes", desc: "Describe the job, the AI drafts and sends a professional quote request in the right language to the right people.", category: "Home Management", type: "reactive", catBg: "bg-stone-100", catText: "text-stone-800", source: "usage" },
-      { id: 83, title: "Track apartment maintenance tasks", desc: "Keep a running list of repairs, contractor appointments, and follow-ups — the AI reminds you when things are overdue.", category: "Home Management", type: "proactive", catBg: "bg-stone-100", catText: "text-stone-800", source: "usage" },
-
-      // ── TRAVEL ──
-      { id: 84, title: "Check if a train or flight is on time", desc: "Quick real-time status checks on your transport without hunting through apps or websites.", category: "Travel", type: "reactive", catBg: "bg-cyan-50", catText: "text-cyan-600", source: "usage" },
-      { id: 85, title: "Add travel bookings to calendar automatically", desc: "Forward a booking confirmation and the AI extracts all the details — dates, times, locations — and adds them to your calendar.", category: "Travel", type: "proactive", catBg: "bg-cyan-50", catText: "text-cyan-600", source: "usage" },
-
-      // ── VOICE-FIRST ──
-      { id: 86, title: "Ramble a thought, AI extracts the actionable parts", desc: "Talk freely about your day, strategy, or ideas. The AI structures it into decisions, action items, and follow-ups.", category: "Voice-First", type: "reactive", catBg: "bg-purple-50", catText: "text-purple-600", source: "usage" },
-      { id: 87, title: "Hands-free briefings", desc: "Get voice responses when you can't look at a screen — driving, cooking, walking. All information delivered by voice.", category: "Voice-First", type: "proactive", catBg: "bg-purple-50", catText: "text-purple-600", source: "usage" },
-
-      // ── BUSINESS & FUNDRAISING ──
-      { id: 88, title: "Research an investor before a meeting", desc: "Automatic briefing on their fund thesis, recent investments, portfolio companies, and alignment with your startup.", category: "Business & Fundraising", type: "proactive", catBg: "bg-blue-50", catText: "text-blue-600", source: "usage" },
-      { id: 89, title: "Build a Google Sheet of target investors", desc: "Find and organize 100+ relevant investors with filtering by sector, geography, and check size.", category: "Business & Fundraising", type: "reactive", catBg: "bg-blue-50", catText: "text-blue-600", source: "usage" },
-      { id: 90, title: "Simulate a VC reading your pitch", desc: "The AI plays a critical, experienced VC and tears apart your deck, cold email, or pitch — so you can fix it before the real meeting.", category: "Business & Fundraising", type: "reactive", catBg: "bg-blue-50", catText: "text-blue-600", source: "usage" },
-
-      // ── FINANCE ──
-      { id: 91, title: "Expense tracking via text", desc: "Text or say your expenses as they happen. The AI maintains a categorized spreadsheet that updates automatically.", category: "Finance", type: "reactive", catBg: "bg-yellow-50", catText: "text-yellow-700", source: "usage" },
-      { id: 92, title: "Subscription renewal alerts", desc: "The AI detects upcoming subscription renewals from your email and warns you before you get charged — giving you time to cancel.", category: "Finance", type: "proactive", catBg: "bg-yellow-50", catText: "text-yellow-700", source: "usage" },
-
-      // ── JOURNALING ──
-      { id: 93, title: "Dream journal from morning voice notes", desc: "Send a voice note each morning describing your dreams. The AI transcribes, organizes, and maintains a structured dream diary — tagging recurring themes, symbols, and emotions over time.", category: "Journaling", type: "proactive", catBg: "bg-violet-50", catText: "text-violet-700", source: "usage" },
-      { id: 94, title: "NatureDex — a real-life Pokedex for nature", desc: "Spot an animal or plant? Snap a photo and send it. The AI identifies the species, logs it with the time and location, and builds your personal nature encyclopedia — tracking every unique creature and plant you've encountered.", category: "Journaling", type: "reactive", catBg: "bg-violet-50", catText: "text-violet-700", source: "usage" },
-
-      // ── JOURNALING (additional) ──
-      { id: 95, title: "Morning brain dump", desc: "Wake up, dump everything swirling in your head — worries, tasks, ideas, random thoughts. The AI sorts it into urgent vs important, suggests next steps, and clears the mental chaos so you start the day with clarity.", category: "Journaling", type: "reactive", catBg: "bg-violet-50", catText: "text-violet-700", source: "usage" },
-      { id: 96, title: "Conversational journaling", desc: "Talk about your day naturally. The AI listens, asks one gentle follow-up, and logs a structured journal entry. Over time, builds a searchable personal history — ask 'how was I feeling in March?' and get a real answer.", category: "Journaling", type: "proactive", catBg: "bg-violet-50", catText: "text-violet-700", source: "usage" },
-
-      // ── PROACTIVE INTELLIGENCE ──
-      { id: 97, title: "Pattern-based nudges", desc: "'You tend to overspend on weekends after stressful weeks — this week looked heavy, heads up.' Gentle, data-informed nudges grounded in real patterns from your tracked behavior — never nagging, always useful.", category: "Proactive Intelligence", type: "proactive", catBg: "bg-lime-50", catText: "text-lime-700", source: "usage" },
-      { id: 98, title: "Opportunity alerts", desc: "'You mentioned wanting to visit Tokyo — flights just dropped to $400.' 'That book you wanted is on sale.' The AI connects your wishes to real-world opportunities as they appear.", category: "Proactive Intelligence", type: "proactive", catBg: "bg-lime-50", catText: "text-lime-700", source: "usage" },
-      { id: 99, title: "Milestone celebrations + personal records", desc: "'You just hit a 30-day gym streak.' 'That's your longest reading streak ever.' 'You've saved $2,000 this quarter.' The AI notices achievements you haven't even tracked consciously and celebrates them.", category: "Proactive Intelligence", type: "proactive", catBg: "bg-lime-50", catText: "text-lime-700", source: "usage" },
-
-      // ── FINANCE (additional) ──
-      { id: 100, title: "Financial intelligence — spending anomaly detection", desc: "Goes beyond logging. Tracks spending trends month over month and proactively flags anomalies — 'you spent 3x more on Uber Eats this month vs last.' Turns passive tracking into active financial awareness.", category: "Finance", type: "proactive", catBg: "bg-yellow-50", catText: "text-yellow-700", source: "usage" },
-
-      // ── PERSONAL KNOWLEDGE ──
-      { id: 101, title: "Living book advisor", desc: "Tell the AI to study a book. From that point, query it against real-life situations. 'I'm negotiating my salary' → the AI responds using negotiation principles from Never Split the Difference, tailored to your specific situation and history.", category: "Personal Knowledge", type: "reactive", catBg: "bg-amber-100", catText: "text-amber-800", source: "usage" },
-      { id: 102, title: "Mentor mode — 'what would they say?'", desc: "Describe someone you admire — a boss, mentor, or public figure — and how they think. The AI then offers 'what would [person] say about this?' grounded in your real context. A perspective-shifting thinking tool.", category: "Personal Knowledge", type: "reactive", catBg: "bg-amber-100", catText: "text-amber-800", source: "usage" },
-
-      // ── FOOD & COOKING (additional) ──
-      { id: 103, title: "Meal and nutrition log from photos", desc: "'Had sushi for lunch' or just send a photo — logged with rough macros. Trends visible over weeks. Connects to fitness tracking for a full health picture.", category: "Food & Cooking", type: "reactive", catBg: "bg-red-50", catText: "text-red-600", source: "usage" },
-
-      // ── SOCIAL & RELATIONSHIPS (additional) ──
-      { id: 104, title: "Personal CRM — networking tracker", desc: "'Had coffee with Sarah from Stripe, she's into partnerships' — logged with name, context, date, and a follow-up reminder. Builds a personal relationship database the AI can reference when you need advice about that person later.", category: "Social & Relationships", type: "reactive", catBg: "bg-rose-50", catText: "text-rose-600", source: "usage" },
-      { id: 105, title: "Social event planner", desc: "'Organize a dinner for 6 this Saturday' — the AI checks your calendar, suggests times, drafts group messages, and tracks RSVPs. One message kicks off the whole workflow.", category: "Social & Relationships", type: "reactive", catBg: "bg-rose-50", catText: "text-rose-600", source: "usage" },
-
-      // ── HEALTH & WELLNESS (additional) ──
-      { id: 106, title: "Health pattern detection", desc: "Cross-references mood logs, sleep mentions, fitness data, and food logs to surface potential patterns. 'You've mentioned headaches 4 times this month, always after days with no exercise.' Not a diagnosis — a pattern mirror.", category: "Health & Wellness", type: "proactive", catBg: "bg-teal-50", catText: "text-teal-700", source: "usage" },
-
-      // ── MENTAL HEALTH & WELLBEING (additional) ──
-      { id: 107, title: "Gratitude and wins log", desc: "Once a day the AI asks: 'What's one thing that went well today?' Logged over time. On bad days, it surfaces past wins as a reminder. Simple, powerful, evidence-based for wellbeing.", category: "Mental Health & Wellbeing", type: "proactive", catBg: "bg-violet-50", catText: "text-violet-700", source: "usage" },
-
-      // ── SELF-KNOWLEDGE (additional) ──
-      { id: 108, title: "Life audit — stated vs revealed priorities", desc: "The AI analyzes what you say your priorities are vs how you actually spend your time — from calendar, habits, and conversation history. 'You say health is #1, but you've skipped the gym 3 weeks in a row.'", category: "Self-Knowledge", type: "proactive", catBg: "bg-fuchsia-50", catText: "text-fuchsia-700", source: "usage" },
-      { id: 109, title: "Niche interest companion", desc: "Passionate about something niche — vintage watches, obscure history, a specific music genre? The AI remembers, engages deeply, shares facts, and builds on it over time. 'The person who actually wants to talk about this.'", category: "Self-Knowledge", type: "reactive", catBg: "bg-fuchsia-50", catText: "text-fuchsia-700", source: "usage" },
-      { id: 110, title: "Year-in-review generator", desc: "At year end, the AI compiles all tracked data into a personal annual report — books read, money saved, workouts, trips, goals hit. Your own Spotify Wrapped, but for your entire life. Highly shareable.", category: "Self-Knowledge", type: "proactive", catBg: "bg-fuchsia-50", catText: "text-fuchsia-700", source: "usage" },
-
-      // ── SMART LISTS ──
-      { id: 111, title: "Auto-capture wishlist", desc: "Say 'I really need new running shoes' in any context — it gets added to a wishlist automatically. The AI catches purchase intent from natural conversation. You never say 'add this' — it just notices.", category: "Smart Lists", type: "proactive", catBg: "bg-zinc-50", catText: "text-zinc-600", source: "usage" },
-      { id: 112, title: "Gift ideas auto-capture", desc: "'My sister mentioned she loves that author' — stored under that person's name in a gift ideas list. Surfaces before birthdays and holidays. Never scramble for gift ideas again.", category: "Smart Lists", type: "proactive", catBg: "bg-zinc-50", catText: "text-zinc-600", source: "usage" },
-      { id: 113, title: "Watch and listen list", desc: "Movies, shows, podcasts, albums mentioned in passing — captured and organized automatically. When you're bored on a Friday night, ask 'what did I want to watch?' and get your own curated list.", category: "Smart Lists", type: "proactive", catBg: "bg-zinc-50", catText: "text-zinc-600", source: "usage" },
-      { id: 114, title: "Trip and experience bucket list", desc: "'That restaurant looks amazing' or 'I want to visit Tokyo' — collected into a running list organized by type and location. Your personal bucket list that builds itself from conversation.", category: "Smart Lists", type: "proactive", catBg: "bg-zinc-50", catText: "text-zinc-600", source: "usage" },
-
-      // ── DOCUMENTS & SPREADSHEETS (additional) ──
-      { id: 115, title: "Turn any chat into a structured doc", desc: "After a brainstorm or planning conversation, say 'turn this into a doc' — the AI creates a structured Google Doc from the thread with sections, decisions, and action items.", category: "Documents & Spreadsheets", type: "reactive", catBg: "bg-blue-50", catText: "text-blue-700", source: "usage" },
-
-      // ── LEARNING & EDUCATION (additional) ──
-      { id: 116, title: "Interview prep role-play", desc: "The AI plays the interviewer for a specific company and role, asks tough questions, and gives feedback. It already knows your experience and goals, so prep is personalized. Tracks improvement over time.", category: "Learning & Education", type: "reactive", catBg: "bg-sky-50", catText: "text-sky-700", source: "usage" },
-
-      // ── HOME MANAGEMENT (additional) ──
-      { id: 117, title: "Move and relocation assistant", desc: "Tracks every task of moving — utilities, address changes, deposits, timelines — in one place. Sends reminders, keeps everything organized. Turns a chaotic life event into a managed checklist.", category: "Home Management", type: "proactive", catBg: "bg-stone-100", catText: "text-stone-800", source: "usage" },
-
-      // ── SHARED & COLLABORATIVE ──
-      { id: 118, title: "Couples budget tracker", desc: "Both partners report expenses to the AI — shared tracking of combined spending, splits, and progress toward shared goals like a vacation fund. Eliminates the awkward 'money conversation.'", category: "Shared & Collaborative", type: "proactive", catBg: "bg-pink-100", catText: "text-pink-700", source: "usage" },
-      { id: 119, title: "Roommate expense splitting", desc: "Shared household expenses logged by whoever pays — the AI tracks who owes who, maintains a running balance, and sends settlement reminders. Replaces Splitwise with zero app-switching.", category: "Shared & Collaborative", type: "proactive", catBg: "bg-pink-100", catText: "text-pink-700", source: "usage" },
-      { id: 120, title: "Shared trip planning", desc: "Group trip organized through the AI. Collects preferences, finds dates that work via calendars, builds an itinerary, and tracks shared budget. One person starts it, others get pulled in.", category: "Shared & Collaborative", type: "reactive", catBg: "bg-pink-100", catText: "text-pink-700", source: "usage" },
-      { id: 121, title: "Family hub — household operating system", desc: "Shared family calendar, grocery lists, chore tracking, kid activity scheduling. The AI becomes the household operating system — the person who 'keeps everything running,' but automated.", category: "Shared & Collaborative", type: "proactive", catBg: "bg-pink-100", catText: "text-pink-700", source: "usage" },
-
-      // ── CALENDAR & SCHEDULING (additional) ──
-      { id: 122, title: "Proactive calendar optimization", desc: "Analyzes your week and suggests batching similar meetings, protecting deep work blocks, and flags overcommitment — before the week goes off the rails. Not reactive — the AI speaks up first.", category: "Calendar & Scheduling", type: "proactive", catBg: "bg-purple-50", catText: "text-purple-700", source: "usage" },
-
-      // ── LIFE COACHING & DECISIONS (additional) ──
-      { id: 123, title: "Weekly review and wrap-up", desc: "Every Sunday, the AI pulls your calendar, emails, trackers, and goals into one combined review: 'here's where you stand.' Both operational and motivational. The Spotify Wrapped effect, but weekly.", category: "Life Coaching & Decisions", type: "proactive", catBg: "bg-indigo-50", catText: "text-indigo-700", source: "usage" },
-
-      // ── WRITING & CONTENT (additional) ──
-      { id: 124, title: "Reading log + living library", desc: "Mention finishing a book — the AI logs title, date, and your reaction. Builds a personal reading history. Ask 'what did I think of that book last year?' and get your own review back.", category: "Writing & Content", type: "reactive", catBg: "bg-cyan-50", catText: "text-cyan-700", source: "usage" },
+    const groups = [
+      {
+        name: "Save Time",
+        outcome: "Eliminate repetitive tasks, cut friction from daily life.",
+        tags: ["Daily Habits", "Work"],
+        caseIds: [1,2,3,4,5,6,7,8,9,10,11,122,86,87,70,71,80,81]
+      },
+      {
+        name: "Never Forget Anything",
+        outcome: "Always remember what matters — birthdays, tasks, follow-ups, promises.",
+        tags: ["Daily Habits", "Relationships"],
+        caseIds: [12,13,14,15,16,17,104,111,112,113,114,79]
+      },
+      {
+        name: "Stay on Top of Your Money",
+        outcome: "Track spending, catch anomalies, and stay financially aware without effort.",
+        tags: ["Finance"],
+        caseIds: [91,100,92,118,119,53,54,55,56]
+      },
+      {
+        name: "Live Healthier",
+        outcome: "Build better habits, track your body, and take control of your health.",
+        tags: ["Health", "Food"],
+        caseIds: [29,30,31,32,33,34,35,106,36,37,38,24,25,26,27,28,103]
+      },
+      {
+        name: "Know Yourself Better",
+        outcome: "Discover patterns, blind spots, and insights about who you really are.",
+        tags: ["Self-Knowledge"],
+        caseIds: [44,125,126,127,128,45,46,108,109,110,39,40,41,42,43,107,93,95,96,94,97,98,99]
+      },
+      {
+        name: "Make Better Decisions",
+        outcome: "Think more clearly, resolve conflicts, and act with confidence.",
+        tags: ["Self-Knowledge", "Work"],
+        caseIds: [47,48,49,50,51,52,123,101,102,53,55]
+      },
+      {
+        name: "Be More Creative",
+        outcome: "Write better, faster, and in your own voice.",
+        tags: ["Creativity", "Work"],
+        caseIds: [65,66,67,68,69,124,77,78,115,72]
+      },
+      {
+        name: "Learn Faster",
+        outcome: "Absorb knowledge, master skills, and prepare like a pro.",
+        tags: ["Learning"],
+        caseIds: [57,58,59,60,116,70,71,72,73,88,89,90]
+      },
+      {
+        name: "Manage Life Together",
+        outcome: "Coordinate with your partner, family, or roommates without friction.",
+        tags: ["Family", "Relationships", "Home"],
+        caseIds: [118,119,120,121,61,62,63,64,82,83,117,74,75,76,105]
+      },
+      {
+        name: "Navigate and Explore",
+        outcome: "Get where you're going, discover what's around you, and travel effortlessly.",
+        tags: ["Travel", "Daily Habits"],
+        caseIds: [21,22,23,84,85,18,19,20]
+      },
     ];
 
     // ══════════════════════════════════════════════
-    //  STATE & PERSISTENCE
+    //  TAG COUNTS
     // ══════════════════════════════════════════════
 
-    const STORAGE_KEY = 'tinyNature-usecase-decisions';
-    const API_URL = '/api/decisions';
-    let decisions = {};
-    let syncing = false;
+    const allTags = ["Health", "Finance", "Daily Habits", "Self-Knowledge", "Work", "Relationships", "Learning", "Creativity", "Family", "Travel", "Food", "Home"];
 
-    // Load from KV on startup, fall back to localStorage
-    async function loadDecisions() {
-      try {
-        const res = await fetch(API_URL);
-        if (res.ok) {
-          decisions = await res.json();
-          localStorage.setItem(STORAGE_KEY, JSON.stringify(decisions));
-        } else {
-          throw new Error('API unavailable');
+    function getTagCount(tag) {
+      const ids = new Set();
+      groups.forEach(g => {
+        if (g.tags.includes(tag)) {
+          g.caseIds.forEach(id => ids.add(id));
         }
-      } catch {
-        decisions = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
-      }
-      updateCounters();
-      renderCards();
-      filterCards();
-    }
-
-    function saveDecisions() {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(decisions));
-      updateCounters();
-      // Fire-and-forget sync to KV
-      if (!syncing) {
-        syncing = true;
-        fetch(API_URL, {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(decisions),
-        }).finally(() => { syncing = false; });
-      }
-    }
-
-    function getStatus(id) {
-      return decisions[id] || 'pending';
-    }
-
-    function updateCounters() {
-      const shortlisted = Object.values(decisions).filter(v => v === 'shortlisted').length;
-      const rejected = Object.values(decisions).filter(v => v === 'rejected').length;
-      const el = document.getElementById('shortlist-count');
-      el.textContent = `${shortlisted} shortlisted`;
-      el.classList.toggle('hidden', shortlisted === 0);
-      document.getElementById('btn-export').classList.toggle('hidden', shortlisted === 0);
-      document.getElementById('btn-reset').classList.toggle('hidden', Object.keys(decisions).length === 0);
-    }
-
-    // ══════════════════════════════════════════════
-    //  CATEGORY HANDLING
-    // ══════════════════════════════════════════════
-
-    const categoryOrder = ["All", ...new Set(useCases.map(u => u.category))];
-    let activeCategory = "All";
-    let activeStatusFilter = "all";
-
-    // ══════════════════════════════════════════════
-    //  VIEW MODE
-    // ══════════════════════════════════════════════
-
-    let viewMode = 'grid';
-
-    function setViewMode(mode) {
-      viewMode = mode;
-      document.getElementById('grid-view').classList.toggle('hidden', mode !== 'grid');
-      document.getElementById('swipe-view').classList.toggle('hidden', mode !== 'swipe');
-      document.getElementById('filter-section').classList.toggle('hidden', mode !== 'grid');
-      document.getElementById('btn-grid').className = `px-4 py-2 rounded-full text-sm font-medium transition-colors cursor-pointer ${mode === 'grid' ? 'bg-stone-900 text-white' : 'bg-stone-100 text-stone-600 hover:bg-stone-200'}`;
-      document.getElementById('btn-swipe').className = `px-4 py-2 rounded-full text-sm font-medium transition-colors cursor-pointer ${mode === 'swipe' ? 'bg-stone-900 text-white' : 'bg-stone-100 text-stone-600 hover:bg-stone-200'}`;
-      if (mode === 'swipe') initSwipe();
-      if (mode === 'grid') { renderCards(); filterCards(); }
-    }
-
-    // ══════════════════════════════════════════════
-    //  GRID VIEW
-    // ══════════════════════════════════════════════
-
-    function renderFilters() {
-      const bar = document.getElementById("filter-bar");
-      bar.innerHTML = "";
-      categoryOrder.forEach(cat => {
-        const btn = document.createElement("button");
-        btn.textContent = cat;
-        const isActive = cat === activeCategory;
-        btn.className = "filter-pill shrink-0 px-4 py-2 rounded-full text-sm font-medium transition-colors cursor-pointer select-none "
-          + (isActive ? "bg-stone-900 text-white" : "bg-stone-100 text-stone-600 hover:bg-stone-200");
-        btn.addEventListener("click", () => { activeCategory = cat; renderFilters(); filterCards(); });
-        bar.appendChild(btn);
       });
+      return ids.size;
     }
 
-    function setStatusFilter(sf) {
-      activeStatusFilter = sf;
-      document.querySelectorAll('[data-sf]').forEach(btn => {
-        btn.classList.toggle('ring-2', btn.dataset.sf === sf);
-        btn.classList.toggle('ring-stone-400', btn.dataset.sf === sf);
-      });
-      filterCards();
-    }
+    // ══════════════════════════════════════════════
+    //  STATE
+    // ══════════════════════════════════════════════
 
-    function renderCards() {
-      const grid = document.getElementById("card-grid");
-      grid.innerHTML = "";
-      useCases.forEach(uc => {
-        const status = getStatus(uc.id);
-        const card = document.createElement("div");
-        card.className = "use-card bg-white border border-stone-100 rounded-2xl p-6 shadow-sm hover:shadow-lg hover:border-stone-300 transition-all flex flex-col";
-        card.setAttribute("data-category", uc.category);
-        card.setAttribute("data-type", uc.type);
-        card.setAttribute("data-id", uc.id);
-        card.setAttribute("data-status", status);
+    let activeTag = null;
 
-        const isProactive = uc.type === "proactive";
-        const statusBadge = status === 'shortlisted'
-          ? '<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium badge-shortlisted">Shortlisted</span>'
-          : status === 'rejected'
-          ? '<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium badge-rejected">Rejected</span>'
-          : '';
+    // ══════════════════════════════════════════════
+    //  RENDER
+    // ══════════════════════════════════════════════
 
-        card.innerHTML = `
+    function createCard(id, isFeatured) {
+      const uc = useCases[id];
+      if (!uc) return '';
+      const isProactive = uc.type === 'proactive';
+      const badgeClass = isProactive ? 'badge-proactive' : 'badge-reactive';
+      const badgeLabel = isProactive ? 'Proactive' : 'Reactive';
+      const badgeDot = isProactive ? 'bg-amber-400' : 'bg-teal-400';
+      const featuredClass = isFeatured ? 'featured' : '';
+      const starHtml = isFeatured ? '<span class="text-amber-500 text-sm" title="Most Popular">&#9733;</span>' : '';
+
+      return `
+        <div class="use-card ${featuredClass}" data-id="${id}">
           <div class="flex items-center justify-between mb-3">
-            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${uc.catBg} ${uc.catText}">${uc.category}</span>
-            <div class="flex items-center gap-2">
-              ${statusBadge}
-            </div>
-          </div>
-          <h3 class="text-lg font-medium text-stone-900 mb-2 leading-tight">${uc.title}</h3>
-          <p class="text-sm text-stone-500 leading-relaxed mb-4 flex-1">${uc.desc}</p>
-          <div class="flex items-center justify-between mt-auto">
-            <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium ${isProactive ? 'bg-green-50 text-green-700' : 'bg-stone-100 text-stone-600'}">
-              <span class="w-2 h-2 rounded-full ${isProactive ? 'bg-green-400' : 'bg-stone-400'}"></span>
-              ${isProactive ? 'Proactive' : 'Reactive'}
+            <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium ${badgeClass}">
+              <span class="w-2 h-2 rounded-full ${badgeDot}"></span>
+              ${badgeLabel}
             </span>
-            <div class="flex gap-1">
-              <button onclick="event.stopPropagation(); decide(${uc.id}, 'shortlisted')" class="w-8 h-8 rounded-full flex items-center justify-center text-sm transition-colors ${status === 'shortlisted' ? 'bg-green-500 text-white' : 'bg-green-50 text-green-600 hover:bg-green-100'} cursor-pointer" title="Shortlist">&#10003;</button>
-              <button onclick="event.stopPropagation(); decide(${uc.id}, 'rejected')" class="w-8 h-8 rounded-full flex items-center justify-center text-sm transition-colors ${status === 'rejected' ? 'bg-red-500 text-white' : 'bg-red-50 text-red-400 hover:bg-red-100'} cursor-pointer" title="Reject">&times;</button>
+            ${starHtml}
+          </div>
+          <h3 class="text-base font-semibold text-stone-900 mb-2 leading-snug">${uc.title}</h3>
+          <p class="text-sm text-stone-500 leading-relaxed">${uc.desc}</p>
+          <div class="card-cta mt-3 pt-3 border-t border-stone-100">
+            <a href="https://wa.me/14242421336" target="_blank" class="text-xs font-medium text-stone-900 hover:text-stone-600 transition-colors">Try this &rarr;</a>
+          </div>
+        </div>
+      `;
+    }
+
+    function renderFeatured() {
+      document.getElementById('featured-grid').innerHTML = featuredIds.map(id => createCard(id, true)).join('');
+    }
+
+    function renderTags() {
+      const bar = document.getElementById('tag-bar');
+      const totalCount = Object.keys(useCases).length;
+      let html = `<button class="tag-pill px-4 py-2 rounded-full text-sm font-medium border border-stone-200 active" data-tag="all" onclick="filterByTag(null)">All <span class="text-xs opacity-60">${totalCount}</span></button>`;
+      allTags.forEach(tag => {
+        const count = getTagCount(tag);
+        if (count > 0) {
+          html += `<button class="tag-pill px-4 py-2 rounded-full text-sm font-medium border border-stone-200 bg-white text-stone-600 hover:bg-stone-50" data-tag="${tag}" onclick="filterByTag('${tag}')">${tag} <span class="text-xs opacity-60">${count}</span></button>`;
+        }
+      });
+      bar.innerHTML = html;
+    }
+
+    function renderGroups() {
+      const container = document.getElementById('groups-container');
+      let html = '';
+      groups.forEach((g, idx) => {
+        const tagAttr = g.tags.join(',');
+        html += `
+          <section class="group-section mb-16" data-group-tags="${tagAttr}" id="group-${idx}">
+            <div class="mb-6">
+              <h2 class="text-2xl md:text-3xl font-bold text-stone-900 font-serif-title mb-1">${g.name}</h2>
+              <p class="text-base text-stone-500">${g.outcome}</p>
             </div>
-          </div>
-        `;
-        grid.appendChild(card);
-      });
-    }
-
-    function decide(id, status) {
-      if (decisions[id] === status) {
-        delete decisions[id]; // toggle off
-      } else {
-        decisions[id] = status;
-      }
-      saveDecisions();
-      renderCards();
-      filterCards();
-    }
-
-    function filterCards() {
-      const cards = document.querySelectorAll(".use-card");
-      let visibleCount = 0;
-      cards.forEach(card => {
-        const cat = card.getAttribute("data-category");
-        const status = card.getAttribute("data-status");
-        const catMatch = activeCategory === "All" || cat === activeCategory;
-        const statusMatch = activeStatusFilter === "all"
-          || (activeStatusFilter === "pending" && status === "pending")
-          || activeStatusFilter === status;
-        if (catMatch && statusMatch) {
-          card.classList.remove("hidden-card");
-          visibleCount++;
-        } else {
-          card.classList.add("hidden-card");
-        }
-      });
-      document.getElementById("use-count").textContent = `Showing ${visibleCount} of ${useCases.length} use cases`;
-    }
-
-    // ══════════════════════════════════════════════
-    //  SWIPE MODE
-    // ══════════════════════════════════════════════
-
-    let swipeQueue = [];
-    let swipeIndex = 0;
-
-    function initSwipe() {
-      // Queue = only undecided use cases
-      swipeQueue = useCases.filter(uc => !decisions[uc.id]);
-      swipeIndex = 0;
-      document.getElementById('swipe-done').classList.add('hidden');
-      document.getElementById('swipe-container').classList.remove('hidden');
-      renderSwipeCards();
-      updateSwipeProgress();
-    }
-
-    function renderSwipeCards() {
-      const container = document.getElementById('swipe-container');
-      container.innerHTML = '';
-      if (swipeIndex >= swipeQueue.length) {
-        showSwipeDone();
-        return;
-      }
-      // Render top 2 cards (next underneath, current on top)
-      const indices = [swipeIndex + 1, swipeIndex].filter(i => i < swipeQueue.length);
-      indices.forEach((idx, stackPos) => {
-        const uc = swipeQueue[idx];
-        const isTop = idx === swipeIndex;
-        const card = document.createElement('div');
-        card.className = 'swipe-card';
-        card.id = `swipe-${uc.id}`;
-        if (!isTop) {
-          card.style.transform = 'scale(0.95) translateY(8px)';
-          card.style.opacity = '0.7';
-          card.style.zIndex = '1';
-        } else {
-          card.style.zIndex = '10';
-        }
-
-        const isProactive = uc.type === 'proactive';
-        card.innerHTML = `
-          <div class="overlay-yes swipe-overlay">Shortlist</div>
-          <div class="overlay-no swipe-overlay" style="right:auto;left:1.5rem">Skip</div>
-          <div class="flex items-center justify-between mb-4">
-            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${uc.catBg} ${uc.catText}">${uc.category}</span>
-            <div class="flex items-center gap-2">
-              <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium ${isProactive ? 'bg-green-50 text-green-700' : 'bg-stone-100 text-stone-600'}">
-                <span class="w-2 h-2 rounded-full ${isProactive ? 'bg-green-400' : 'bg-stone-400'}"></span>
-                ${isProactive ? 'Proactive' : 'Reactive'}
-              </span>
+            <div class="use-grid">
+              ${g.caseIds.map(id => createCard(id, featuredIds.includes(id))).join('')}
             </div>
-          </div>
-          <h3 class="text-xl font-semibold text-stone-900 mb-3 leading-tight">${uc.title}</h3>
-          <p class="text-base text-stone-500 leading-relaxed flex-1">${uc.desc}</p>
-          <div class="mt-4 pt-4 border-t border-stone-100 text-xs text-stone-400 text-center">
-            Swipe right to shortlist &middot; Swipe left to reject
-          </div>
+          </section>
         `;
-
-        if (isTop) setupDrag(card, uc.id);
-        container.appendChild(card);
       });
+      container.innerHTML = html;
     }
 
-    function setupDrag(card, ucId) {
-      let startX = 0, currentX = 0, isDragging = false;
+    // ══════════════════════════════════════════════
+    //  FILTER BY TAG
+    // ══════════════════════════════════════════════
 
-      function onStart(e) {
-        isDragging = true;
-        startX = e.type === 'touchstart' ? e.touches[0].clientX : e.clientX;
-        card.classList.add('dragging');
-      }
-      function onMove(e) {
-        if (!isDragging) return;
-        const x = e.type === 'touchmove' ? e.touches[0].clientX : e.clientX;
-        currentX = x - startX;
-        const rotate = currentX * 0.1;
-        card.style.transform = `translateX(${currentX}px) rotate(${rotate}deg)`;
+    function filterByTag(tag) {
+      activeTag = tag;
 
-        // Show overlays
-        const yesOverlay = card.querySelector('.overlay-yes');
-        const noOverlay = card.querySelector('.overlay-no');
-        yesOverlay.style.opacity = Math.min(currentX / 100, 1);
-        noOverlay.style.opacity = Math.min(-currentX / 100, 1);
-      }
-      function onEnd() {
-        if (!isDragging) return;
-        isDragging = false;
-        card.classList.remove('dragging');
-        if (currentX > 100) {
-          card.classList.add('exit-right');
-          setTimeout(() => { decisions[ucId] = 'shortlisted'; saveDecisions(); advanceSwipe(); }, 300);
-        } else if (currentX < -100) {
-          card.classList.add('exit-left');
-          setTimeout(() => { decisions[ucId] = 'rejected'; saveDecisions(); advanceSwipe(); }, 300);
+      // Update pill styles
+      document.querySelectorAll('.tag-pill').forEach(pill => {
+        const pillTag = pill.dataset.tag;
+        if ((!tag && pillTag === 'all') || pillTag === tag) {
+          pill.classList.add('active');
         } else {
-          card.style.transform = '';
-          card.querySelector('.overlay-yes').style.opacity = 0;
-          card.querySelector('.overlay-no').style.opacity = 0;
+          pill.classList.remove('active');
         }
-        currentX = 0;
-      }
+      });
 
-      card.addEventListener('mousedown', onStart);
-      card.addEventListener('touchstart', onStart, { passive: true });
-      document.addEventListener('mousemove', onMove);
-      document.addEventListener('touchmove', onMove, { passive: true });
-      document.addEventListener('mouseup', onEnd);
-      document.addEventListener('touchend', onEnd);
-    }
+      // Filter groups
+      document.querySelectorAll('.group-section').forEach(section => {
+        if (!tag) {
+          section.classList.remove('hidden-group');
+        } else {
+          const groupTags = section.dataset.groupTags.split(',');
+          section.classList.toggle('hidden-group', !groupTags.includes(tag));
+        }
+      });
 
-    function swipeAction(action) {
-      if (swipeIndex >= swipeQueue.length) return;
-      const uc = swipeQueue[swipeIndex];
-      const card = document.getElementById(`swipe-${uc.id}`);
-      if (!card) return;
-
-      if (action === 'shortlist') {
-        card.classList.add('exit-right');
-        setTimeout(() => { decisions[uc.id] = 'shortlisted'; saveDecisions(); advanceSwipe(); }, 300);
-      } else if (action === 'reject') {
-        card.classList.add('exit-left');
-        setTimeout(() => { decisions[uc.id] = 'rejected'; saveDecisions(); advanceSwipe(); }, 300);
+      // Show/hide featured section
+      const featuredSection = document.getElementById('featured-section');
+      if (!tag) {
+        featuredSection.style.display = '';
       } else {
-        // skip — just move forward without deciding
-        card.classList.add('exit-left');
-        setTimeout(() => advanceSwipe(), 300);
+        const hasMatch = featuredIds.some(id =>
+          groups.some(g => g.tags.includes(tag) && g.caseIds.includes(id))
+        );
+        featuredSection.style.display = hasMatch ? '' : 'none';
       }
-    }
-
-    function advanceSwipe() {
-      swipeIndex++;
-      updateSwipeProgress();
-      renderSwipeCards();
-    }
-
-    function updateSwipeProgress() {
-      const total = swipeQueue.length;
-      const done = Math.min(swipeIndex, total);
-      document.getElementById('swipe-progress-text').textContent = `${done} / ${total}`;
-      document.getElementById('swipe-progress-bar').style.width = total > 0 ? `${(done / total) * 100}%` : '0%';
-    }
-
-    function showSwipeDone() {
-      document.getElementById('swipe-container').classList.add('hidden');
-      const shortlisted = Object.values(decisions).filter(v => v === 'shortlisted').length;
-      const rejected = Object.values(decisions).filter(v => v === 'rejected').length;
-      document.getElementById('swipe-done-text').textContent = `You shortlisted ${shortlisted} use cases and rejected ${rejected}.`;
-      document.getElementById('swipe-done').classList.remove('hidden');
-    }
-
-    // ══════════════════════════════════════════════
-    //  KEYBOARD SHORTCUTS
-    // ══════════════════════════════════════════════
-
-    document.addEventListener('keydown', e => {
-      if (viewMode !== 'swipe') return;
-      if (e.key === 'ArrowRight') { e.preventDefault(); swipeAction('shortlist'); }
-      else if (e.key === 'ArrowLeft') { e.preventDefault(); swipeAction('reject'); }
-      else if (e.key === 'ArrowDown') { e.preventDefault(); swipeAction('skip'); }
-    });
-
-    // ══════════════════════════════════════════════
-    //  EXPORT & RESET
-    // ══════════════════════════════════════════════
-
-    function exportShortlist() {
-      const shortlisted = useCases.filter(uc => decisions[uc.id] === 'shortlisted');
-      const text = shortlisted.map((uc, i) => `${i+1}. ${uc.title}\n   ${uc.desc}\n   Category: ${uc.category} | Type: ${uc.type}`).join('\n\n');
-      const blob = new Blob([`tinyNature — Shortlisted Use Cases\n${'='.repeat(40)}\n\n${text}`], { type: 'text/plain' });
-      const a = document.createElement('a');
-      a.href = URL.createObjectURL(blob);
-      a.download = 'tinyNature-shortlisted-usecases.txt';
-      a.click();
-    }
-
-    function resetDecisions() {
-      if (!confirm('Reset all shortlist/reject decisions?')) return;
-      decisions = {};
-      saveDecisions();
-      renderCards();
-      filterCards();
     }
 
     // ══════════════════════════════════════════════
     //  INIT
     // ══════════════════════════════════════════════
 
-    renderFilters();
-    renderCards();
-    filterCards();
-    updateCounters();
-    loadDecisions(); // Hydrate from KV (re-renders once loaded)
+    renderFeatured();
+    renderTags();
+    renderGroups();
   </script>
 </body>
 
