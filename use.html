@@ -138,28 +138,26 @@
       .mobile-swipe-active #swipe-view {
         display: flex !important;
         flex-direction: column;
-        justify-content: center;
         height: 100dvh;
         padding: 1rem 1.25rem;
         padding-bottom: calc(1.5rem + env(safe-area-inset-bottom, 0px));
         box-sizing: border-box;
         overflow: hidden;
-        gap: 1.5rem;
+        gap: 1rem;
       }
       .mobile-swipe-active .swipe-container {
+        flex: 1 1 0;
+        min-height: 0;
         height: auto;
         max-width: 100%;
         position: relative;
       }
       .mobile-swipe-active .swipe-card {
-        position: relative;
-        inset: auto;
-        height: auto;
-        overflow-y: auto;
-      }
-      .mobile-swipe-active .swipe-card + .swipe-card {
         position: absolute;
-        top: 0; left: 0; right: 0;
+        inset: 0;
+        height: auto;
+        bottom: 0;
+        overflow-y: auto;
       }
       .mobile-swipe-active .swipe-buttons {
         flex-shrink: 0;
