@@ -138,26 +138,37 @@
       .mobile-swipe-active #swipe-view {
         display: flex !important;
         flex-direction: column;
+        justify-content: center;
         height: 100dvh;
-        padding: 1rem 1rem 0;
+        padding: 1rem 1.25rem;
+        padding-bottom: calc(1.5rem + env(safe-area-inset-bottom, 0px));
         box-sizing: border-box;
         overflow: hidden;
+        gap: 1.5rem;
       }
       .mobile-swipe-active .swipe-container {
-        flex: 1 1 0;
-        min-height: 0;
         height: auto;
         max-width: 100%;
+        position: relative;
       }
       .mobile-swipe-active .swipe-card {
-        position: absolute;
-        inset: 0;
+        position: relative;
+        inset: auto;
         height: auto;
         overflow-y: auto;
       }
+      .mobile-swipe-active .swipe-card + .swipe-card {
+        position: absolute;
+        top: 0; left: 0; right: 0;
+      }
       .mobile-swipe-active .swipe-buttons {
-        padding: 1rem 0 calc(1rem + env(safe-area-inset-bottom, 0px));
         flex-shrink: 0;
+        padding: 0;
+      }
+      .mobile-swipe-active .swipe-buttons button {
+        width: 4.5rem;
+        height: 4.5rem;
+        font-size: 2rem;
       }
       .mobile-swipe-active #swipe-done {
         flex: 1;
@@ -233,19 +244,19 @@
 
   <!-- Swipe View (mobile only) -->
   <div class="hidden" id="swipe-view">
-    <div class="max-w-md mx-auto mb-4">
-      <div class="flex items-center justify-between text-sm text-stone-500 mb-2">
-        <span id="swipe-progress-text">0 / 0</span>
-        <span class="text-xs text-stone-400">Swipe right = interested</span>
+    <div class="max-w-md mx-auto">
+      <div class="flex items-center justify-between mb-2">
+        <span id="swipe-progress-text" class="text-sm font-medium text-stone-600">0 / 0</span>
+        <span class="text-xs text-stone-400">swipe or tap below</span>
       </div>
-      <div class="w-full h-1.5 bg-stone-100 rounded-full overflow-hidden">
+      <div class="w-full h-1 bg-stone-100 rounded-full overflow-hidden">
         <div id="swipe-progress-bar" class="progress-fill h-full bg-stone-900 rounded-full" style="width:0%"></div>
       </div>
     </div>
     <div class="swipe-container" id="swipe-container"></div>
-    <div class="swipe-buttons flex items-center justify-center gap-6 mt-6">
-      <button onclick="swipeAction('reject')" class="w-16 h-16 rounded-full border-2 border-red-200 bg-red-50 flex items-center justify-center text-red-500 text-2xl font-bold hover:bg-red-100 transition-colors cursor-pointer" title="Skip">&times;</button>
-      <button onclick="swipeAction('shortlist')" class="w-16 h-16 rounded-full border-2 border-green-200 bg-green-50 flex items-center justify-center text-green-500 text-2xl font-bold hover:bg-green-100 transition-colors cursor-pointer" title="Interested">&check;</button>
+    <div class="swipe-buttons flex items-center justify-center gap-10">
+      <button onclick="swipeAction('reject')" class="w-18 h-18 rounded-full border-2 border-red-200 bg-red-50 flex items-center justify-center text-red-500 text-3xl font-bold hover:bg-red-100 active:scale-90 transition-all cursor-pointer" style="width:4.5rem;height:4.5rem" title="Skip">&times;</button>
+      <button onclick="swipeAction('shortlist')" class="w-18 h-18 rounded-full border-2 border-green-200 bg-green-50 flex items-center justify-center text-green-500 text-3xl font-bold hover:bg-green-100 active:scale-90 transition-all cursor-pointer" style="width:4.5rem;height:4.5rem" title="Interested">&check;</button>
     </div>
     <div id="swipe-done" class="hidden text-center py-16">
       <div class="text-5xl mb-4">&#10003;</div>
@@ -657,9 +668,6 @@
           </div>
           <h3 class="text-xl font-semibold text-stone-900 mb-3 leading-tight">${uc.title}</h3>
           <p class="text-base text-stone-500 leading-relaxed flex-1">${uc.desc}</p>
-          <div class="mt-4 pt-4 border-t border-stone-100 text-xs text-stone-400 text-center">
-            Swipe right if interested &middot; Left to skip
-          </div>
         `;
         if (isTop) setupDrag(card, id);
         container.appendChild(card);
