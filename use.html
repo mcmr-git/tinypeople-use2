@@ -252,9 +252,9 @@
       </div>
     </div>
     <div class="swipe-container" id="swipe-container"></div>
-    <div class="swipe-buttons flex items-center justify-center gap-10">
-      <button onclick="swipeAction('reject')" class="w-18 h-18 rounded-full border-2 border-red-200 bg-red-50 flex items-center justify-center text-red-500 text-3xl font-bold hover:bg-red-100 active:scale-90 transition-all cursor-pointer" style="width:4.5rem;height:4.5rem" title="Skip">&times;</button>
-      <button onclick="swipeAction('shortlist')" class="w-18 h-18 rounded-full border-2 border-green-200 bg-green-50 flex items-center justify-center text-green-500 text-3xl font-bold hover:bg-green-100 active:scale-90 transition-all cursor-pointer" style="width:4.5rem;height:4.5rem" title="Interested">&check;</button>
+    <div class="swipe-buttons flex items-center justify-center" style="gap:3rem">
+      <button onclick="swipeAction('reject')" class="rounded-full border-2 border-red-200 bg-red-50 flex items-center justify-center text-red-500 text-3xl font-bold hover:bg-red-100 active:scale-90 transition-all cursor-pointer" style="width:4.5rem;height:4.5rem" title="Skip">&times;</button>
+      <button onclick="swipeAction('shortlist')" class="rounded-full border-2 border-green-200 bg-green-50 flex items-center justify-center text-green-500 text-3xl font-bold hover:bg-green-100 active:scale-90 transition-all cursor-pointer" style="width:4.5rem;height:4.5rem" title="Interested">&check;</button>
     </div>
     <div id="swipe-done" class="hidden text-center py-16">
       <div class="text-5xl mb-4">&#10003;</div>
@@ -658,12 +658,10 @@
         card.innerHTML = `
           <div class="overlay-yes swipe-overlay">Yes</div>
           <div class="overlay-no swipe-overlay">Nope</div>
-          <div class="flex items-center gap-2 mb-4">
-            <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium ${isProactive ? 'badge-proactive' : 'badge-reactive'}">
-              <span class="w-2 h-2 rounded-full ${isProactive ? 'bg-amber-400' : 'bg-teal-400'}"></span>
-              ${isProactive ? 'Proactive' : 'Reactive'}
-            </span>
-          </div>
+          <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium mb-4 ${isProactive ? 'badge-proactive' : 'badge-reactive'}" style="align-self:flex-start">
+            <span class="w-2 h-2 rounded-full ${isProactive ? 'bg-amber-400' : 'bg-teal-400'}"></span>
+            ${isProactive ? 'Proactive' : 'Reactive'}
+          </span>
           <h3 class="text-xl font-semibold text-stone-900 mb-3 leading-tight">${uc.title}</h3>
           <p class="text-base text-stone-500 leading-relaxed flex-1">${uc.desc}</p>
         `;
