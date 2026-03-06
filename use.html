@@ -12,8 +12,8 @@
     body { background-color: #FDFCF8; }
 
     /* Sticky filter bar */
-    .sticky-filter { position: sticky; top: 0; z-index: 50; }
-    .filter-scroll { overflow-x: auto; -ms-overflow-style: none; scrollbar-width: none; }
+    .sticky-filter { position: sticky; top: 0; z-index: 50; overflow: hidden; }
+    .filter-scroll { overflow-x: auto; -ms-overflow-style: none; scrollbar-width: none; flex-wrap: nowrap; }
     .filter-scroll::-webkit-scrollbar { display: none; }
 
     /* Card grid */
@@ -100,7 +100,7 @@
       border: 1px solid #e7e5e4; padding: 1.5rem; display: flex; flex-direction: column;
       box-shadow: 0 8px 32px rgba(0,0,0,0.08); cursor: grab;
       transition: transform 0.4s cubic-bezier(0.4,0,0.2,1), opacity 0.3s ease;
-      user-select: none; touch-action: pan-y;
+      user-select: none; touch-action: none;
     }
     .swipe-card.dragging { transition: none; cursor: grabbing; }
     .swipe-card.exit-left {
@@ -144,12 +144,19 @@
         overflow: hidden;
       }
       .mobile-swipe-active .swipe-container {
-        flex: 1;
+        flex: 1 1 0;
+        min-height: 0;
         height: auto;
         max-width: 100%;
       }
+      .mobile-swipe-active .swipe-card {
+        position: absolute;
+        inset: 0;
+        height: auto;
+        overflow-y: auto;
+      }
       .mobile-swipe-active .swipe-buttons {
-        padding: 0.75rem 0 env(safe-area-inset-bottom, 1rem);
+        padding: 1rem 0 calc(1rem + env(safe-area-inset-bottom, 0px));
         flex-shrink: 0;
       }
       .mobile-swipe-active #swipe-done {
@@ -204,7 +211,7 @@
 
   <!-- Sticky Filter Tags -->
   <div class="sticky-filter bg-[#FDFCF8] border-b border-stone-100 py-3">
-    <div class="max-w-6xl mx-auto px-4">
+    <div class="max-w-6xl mx-auto px-4 overflow-hidden">
       <div class="filter-scroll flex gap-2 pb-1" id="tag-bar"></div>
     </div>
   </div>
@@ -693,6 +700,8 @@
       }
       card.addEventListener('mousedown', onStart);
       card.addEventListener('touchstart', onStart, { passive: true });
+      card.addEventListener('touchmove', onMove, { passive: true });
+      card.addEventListener('touchend', onEnd);
       document.addEventListener('mousemove', onMove);
       document.addEventListener('touchmove', onMove, { passive: true });
       document.addEventListener('mouseup', onEnd);
