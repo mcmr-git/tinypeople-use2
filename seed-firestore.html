@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Seed Firestore — tinypeople-use2</title>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+  <style>
+    body { font-family: monospace; background: #0a0f1e; color: #e2e8f0; padding: 2rem; }
+    button { padding: 0.75rem 1.5rem; font-size: 1rem; cursor: pointer; margin: 0.5rem; border: none; border-radius: 0.5rem; }
+    #btn-login { background: #6366f1; color: #fff; }
+    #btn-seed { background: #22c55e; color: #fff; }
+    #log { white-space: pre-wrap; margin-top: 1rem; padding: 1rem; background: rgba(255,255,255,0.05); border-radius: 0.5rem; max-height: 60vh; overflow-y: auto; }
+  </style>
+</head>
+<body>
+  <h1>Seed Firestore with Sample Use Cases</h1>
+  <p>1. Click "Login with Google" (use an admin account).<br>2. Click "Seed Data" to populate Firestore.</p>
+  <button id="btn-login">Login with Google</button>
+  <button id="btn-seed" disabled>Seed Data</button>
+  <div id="log"></div>
+
+  <script>
+    // ── PASTE YOUR FIREBASE CONFIG HERE (same as use.html) ──
+    const firebaseConfig = {
+      apiKey: "AIzaSyDummyKeyReplace",
+      authDomain: "tinypeople-use2.firebaseapp.com",
+      projectId: "tinypeople-use2",
+      storageBucket: "tinypeople-use2.appspot.com",
+      messagingSenderId: "000000000000",
+      appId: "1:000000000000:web:0000000000000000"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+    const auth = firebase.auth();
+    const provider = new firebase.auth.GoogleAuthProvider();
+    const logEl = document.getElementById('log');
+
+    function log(msg) { logEl.textContent += msg + '\n'; }
+
+    document.getElementById('btn-login').addEventListener('click', () => {
+      auth.signInWithPopup(provider)
+        .then(r => { log('Logged in as ' + r.user.email); document.getElementById('btn-seed').disabled = false; })
+        .catch(e => log('Auth error: ' + e.message));
+    });
+
+    const SEED_DATA = [
+      { title: "Morning routine optimizer", description: "Builds and adjusts your ideal morning routine based on sleep, calendar, and energy patterns.", category: "Work & Productivity", type: "Proactive", sort_score: 95 },
+      { title: "Meeting prep briefs", description: "Auto-generates a context brief before each meeting with attendee history and open items.", category: "Work & Productivity", type: "Proactive", sort_score: 90 },
+      { title: "Email triage assistant", description: "Sorts incoming email by urgency and drafts quick replies for low-stakes messages.", category: "Work & Productivity", type: "Reactive", sort_score: 88 },
+      { title: "Deep work scheduler", description: "Finds and protects blocks of uninterrupted time on your calendar for focused work.", category: "Work & Productivity", type: "Proactive", sort_score: 85 },
+      { title: "Symptom pattern tracker", description: "Logs daily symptoms and surfaces correlations you might miss — food, sleep, stress.", category: "Health & Body", type: "Proactive", sort_score: 92 },
+      { title: "Medication reminder", description: "Context-aware reminders that adapt to your schedule, not just a fixed alarm.", category: "Health & Body", type: "Proactive", sort_score: 82 },
+      { title: "Workout spotter", description: "Suggests workouts based on your recovery state, available equipment, and goals.", category: "Health & Body", type: "Reactive", sort_score: 78 },
+      { title: "Nutrition snapshot", description: "Photograph your meal and get an instant macro/micro breakdown with suggestions.", category: "Health & Body", type: "Reactive", sort_score: 86 },
+      { title: "Weekly reflection prompts", description: "Personalized journaling prompts based on what actually happened in your week.", category: "Self-Knowledge", type: "Proactive", sort_score: 91 },
+      { title: "Mood pattern insights", description: "Tracks mood over time and highlights triggers and positive patterns.", category: "Self-Knowledge", type: "Proactive", sort_score: 87 },
+      { title: "Values alignment check", description: "Periodically reviews how you're spending time vs. your stated priorities.", category: "Self-Knowledge", type: "Proactive", sort_score: 80 },
+      { title: "Decision journal", description: "Helps you log important decisions and revisit them later to learn from outcomes.", category: "Self-Knowledge", type: "Reactive", sort_score: 76 },
+      { title: "Family calendar sync", description: "Keeps everyone's schedules aligned and flags conflicts before they become problems.", category: "Family & Relationships", type: "Proactive", sort_score: 89 },
+      { title: "Birthday & occasion planner", description: "Reminds you in advance with gift ideas based on the person's interests.", category: "Family & Relationships", type: "Proactive", sort_score: 84 },
+      { title: "Relationship check-in", description: "Gentle prompts to reach out to people you haven't connected with in a while.", category: "Family & Relationships", type: "Proactive", sort_score: 79 },
+      { title: "Spending insights", description: "Weekly digest of where your money went, with trends and anomaly alerts.", category: "Finance", type: "Proactive", sort_score: 93 },
+      { title: "Bill negotiation prep", description: "Researches competitor rates and scripts a negotiation call for recurring bills.", category: "Finance", type: "Reactive", sort_score: 75 },
+      { title: "Subscription audit", description: "Identifies subscriptions you're not using and helps you cancel them.", category: "Finance", type: "Proactive", sort_score: 81 },
+      { title: "Learning path builder", description: "Creates a personalized curriculum for any skill based on your level and goals.", category: "Learning & Creativity", type: "Reactive", sort_score: 88 },
+      { title: "Creative spark prompts", description: "Daily creative challenges tailored to your medium — writing, art, music, code.", category: "Learning & Creativity", type: "Proactive", sort_score: 77 },
+      { title: "Book club companion", description: "Discussion questions, summaries, and connections to other things you've read.", category: "Learning & Creativity", type: "Reactive", sort_score: 74 },
+      { title: "Travel itinerary builder", description: "Builds day-by-day plans based on your travel style, budget, and interests.", category: "Travel & Home", type: "Reactive", sort_score: 90 },
+      { title: "Home maintenance tracker", description: "Proactive reminders for seasonal maintenance — filters, gutters, inspections.", category: "Travel & Home", type: "Proactive", sort_score: 83 },
+      { title: "Grocery list optimizer", description: "Learns your household patterns and suggests a weekly grocery list with recipes.", category: "Travel & Home", type: "Proactive", sort_score: 86 }
+    ];
+
+    document.getElementById('btn-seed').addEventListener('click', async () => {
+      log('Seeding ' + SEED_DATA.length + ' use cases...');
+      const batch = db.batch();
+      SEED_DATA.forEach(item => {
+        const ref = db.collection('useCases').doc();
+        batch.set(ref, {
+          ...item,
+          created_at: firebase.firestore.FieldValue.serverTimestamp(),
+          updated_at: firebase.firestore.FieldValue.serverTimestamp()
+        });
+      });
+      try {
+        await batch.commit();
+        log('Done! ' + SEED_DATA.length + ' use cases seeded.');
+        log('You can now visit use.html to see the cards.');
+      } catch (e) {
+        log('Error: ' + e.message);
+      }
+    });
+  </script>
+</body>
+</html>

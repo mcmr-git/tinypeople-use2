@@ -1,0 +1,13 @@
+{
+  "rewrites": [
+    { "source": "/use", "destination": "/use.html" }
+  ],
+  "headers": [
+    {
+      "source": "/use.html",
+      "headers": [
+        { "key": "Cache-Control", "value": "no-cache, no-store, must-revalidate" }
+      ]
+    }
+  ]
+}

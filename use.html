@@ -2,754 +2,676 @@
 <html lang="en">
 
 <head>
-  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <title>Use Cases - tinyNature AI Assistant</title>
-  <meta name="description" content="Explore what tinyNature can do — from saving time to knowing yourself better. Real use cases, real outcomes.">
+  <title>Use Cases — tinypeople</title>
+  <meta name="description" content="Explore what tinypeople can do — real use cases, real outcomes.">
   <link rel="icon" href="./favicon.png" type="image/png">
-  <link rel="stylesheet" href="./css/root-DrZ2wtlP.css">
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- Firebase -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+
+  <!-- GSAP -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/Flip.min.js"></script>
+
   <style>
-    body { background-color: #FDFCF8; }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-    /* Sticky filter bar */
-    .sticky-filter { position: sticky; top: 0; z-index: 50; overflow: hidden; }
-    .filter-scroll { overflow-x: auto; -ms-overflow-style: none; scrollbar-width: none; flex-wrap: nowrap; }
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: #0a0f1e;
+      color: #e2e8f0;
+      min-height: 100vh;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ── Nav ── */
+    .nav {
+      position: sticky; top: 0; z-index: 100;
+      background: rgba(10, 15, 30, 0.85);
+      backdrop-filter: blur(16px);
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+      padding: 0.875rem 1.5rem;
+    }
+    .nav-inner {
+      max-width: 1200px; margin: 0 auto;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .nav-brand {
+      display: flex; align-items: center; gap: 0.5rem;
+      text-decoration: none; color: #fff; font-weight: 700; font-size: 1.1rem;
+    }
+    .nav-brand svg { width: 32px; height: 32px; border-radius: 8px; }
+    .nav-links { display: flex; align-items: center; gap: 1rem; }
+    .nav-links a {
+      color: #94a3b8; text-decoration: none; font-size: 0.875rem; font-weight: 500;
+      transition: color 0.2s;
+    }
+    .nav-links a:hover { color: #fff; }
+    .btn-admin {
+      background: rgba(99,102,241,0.15); color: #818cf8; border: 1px solid rgba(99,102,241,0.3);
+      padding: 0.4rem 0.85rem; border-radius: 0.5rem; font-size: 0.8rem; font-weight: 600;
+      cursor: pointer; transition: all 0.2s;
+    }
+    .btn-admin:hover { background: rgba(99,102,241,0.25); }
+    .btn-signout {
+      background: rgba(239,68,68,0.1); color: #f87171; border: 1px solid rgba(239,68,68,0.2);
+      padding: 0.4rem 0.85rem; border-radius: 0.5rem; font-size: 0.8rem; font-weight: 600;
+      cursor: pointer; transition: all 0.2s;
+    }
+    .btn-signout:hover { background: rgba(239,68,68,0.2); }
+
+    /* ── Header ── */
+    .page-header {
+      max-width: 1200px; margin: 0 auto;
+      padding: 3rem 1.5rem 1rem;
+    }
+    .page-header h1 {
+      font-size: 2rem; font-weight: 700; color: #fff;
+      margin-bottom: 0.5rem;
+    }
+    .page-header p {
+      color: #64748b; font-size: 1rem; max-width: 600px;
+    }
+
+    /* ── Filter Tabs ── */
+    .filter-bar {
+      max-width: 1200px; margin: 0 auto;
+      padding: 0 1.5rem 1.5rem;
+    }
+    .filter-scroll {
+      display: flex; gap: 0.5rem; overflow-x: auto;
+      -ms-overflow-style: none; scrollbar-width: none;
+      padding-bottom: 0.25rem;
+    }
     .filter-scroll::-webkit-scrollbar { display: none; }
-
-    /* Card grid */
-    .use-grid {
-      display: grid; grid-template-columns: 1fr; gap: 1.25rem;
+    .filter-tab {
+      white-space: nowrap;
+      padding: 0.45rem 1rem; border-radius: 999px;
+      font-size: 0.8rem; font-weight: 500;
+      border: 1px solid rgba(255,255,255,0.08);
+      background: rgba(255,255,255,0.04);
+      color: #94a3b8;
+      cursor: pointer; transition: all 0.2s;
+      user-select: none;
     }
-    @media (min-width: 40rem) { .use-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
-    @media (min-width: 64rem) { .use-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
-
-    /* Featured grid */
-    .featured-grid {
-      display: grid; grid-template-columns: 1fr; gap: 1.25rem;
+    .filter-tab:hover {
+      background: rgba(255,255,255,0.08);
+      color: #cbd5e1;
     }
-    @media (min-width: 40rem) { .featured-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
-    @media (min-width: 64rem) { .featured-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+    .filter-tab.active {
+      background: #6366f1;
+      color: #fff;
+      border-color: #6366f1;
+    }
 
-    /* Card styles */
+    /* ── Card Grid ── */
+    .grid-container {
+      max-width: 1200px; margin: 0 auto;
+      padding: 0 1.5rem 4rem;
+    }
+    .card-grid {
+      display: grid;
+      grid-template-columns: repeat(1, 1fr);
+      gap: 1rem;
+    }
+    @media (min-width: 640px) { .card-grid { grid-template-columns: repeat(2, 1fr); } }
+    @media (min-width: 1024px) { .card-grid { grid-template-columns: repeat(3, 1fr); } }
+
+    /* ── Cards ── */
     .use-card {
-      background: white;
-      border: 1px solid #e7e5e4;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.06);
       border-radius: 1rem;
       padding: 1.5rem;
-      transition: transform 0.2s ease, box-shadow 0.2s ease;
+      transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
       position: relative;
+      cursor: default;
     }
     .use-card:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+      transform: translateY(-3px);
+      border-color: rgba(99,102,241,0.3);
+      box-shadow: 0 8px 32px rgba(99,102,241,0.08);
     }
-    .use-card:hover .card-cta {
-      opacity: 1;
+    .card-header {
+      display: flex; align-items: flex-start; justify-content: space-between;
+      gap: 0.75rem; margin-bottom: 0.75rem;
     }
-    .card-cta {
-      opacity: 0;
-      transition: opacity 0.2s ease;
+    .card-title {
+      font-size: 1rem; font-weight: 600; color: #f1f5f9;
+      line-height: 1.4;
     }
-
-    /* Featured card highlight */
-    .use-card.featured {
-      border-color: #f59e0b;
-      border-width: 2px;
-      background: linear-gradient(135deg, #fffbeb 0%, white 30%);
+    .card-desc {
+      font-size: 0.875rem; color: #64748b; line-height: 1.6;
     }
-
-    /* Badge styles */
+    .badge {
+      flex-shrink: 0;
+      padding: 0.2rem 0.6rem; border-radius: 999px;
+      font-size: 0.7rem; font-weight: 600; letter-spacing: 0.02em;
+      text-transform: uppercase;
+    }
     .badge-proactive {
-      background: #fff7ed; color: #c2410c; border: 1px solid #fed7aa;
+      background: rgba(251,146,60,0.12); color: #fb923c;
+      border: 1px solid rgba(251,146,60,0.2);
     }
     .badge-reactive {
-      background: #f0fdfa; color: #0f766e; border: 1px solid #99f6e4;
+      background: rgba(45,212,191,0.12); color: #2dd4bf;
+      border: 1px solid rgba(45,212,191,0.2);
     }
 
-    /* Tag pills */
-    .tag-pill {
-      white-space: nowrap;
-      transition: all 0.15s ease;
-      cursor: pointer;
+    /* ── Admin Controls on Card ── */
+    .card-admin {
+      display: flex; gap: 0.5rem; margin-top: 1rem;
+      padding-top: 0.75rem; border-top: 1px solid rgba(255,255,255,0.06);
     }
-    .tag-pill.active {
-      background: #1c1917 !important;
-      color: white !important;
-      border-color: #1c1917 !important;
+    .card-admin button {
+      flex: 1; padding: 0.35rem 0;
+      border-radius: 0.375rem; font-size: 0.75rem; font-weight: 500;
+      cursor: pointer; transition: all 0.15s; border: none;
+    }
+    .btn-edit {
+      background: rgba(99,102,241,0.12); color: #818cf8;
+    }
+    .btn-edit:hover { background: rgba(99,102,241,0.25); }
+    .btn-delete {
+      background: rgba(239,68,68,0.1); color: #f87171;
+    }
+    .btn-delete:hover { background: rgba(239,68,68,0.2); }
+
+    /* ── Admin FAB ── */
+    .fab-add {
+      position: fixed; bottom: 2rem; right: 2rem;
+      width: 56px; height: 56px; border-radius: 50%;
+      background: #6366f1; color: #fff; border: none;
+      font-size: 1.75rem; cursor: pointer;
+      box-shadow: 0 4px 24px rgba(99,102,241,0.4);
+      transition: transform 0.2s, box-shadow 0.2s;
+      display: none; align-items: center; justify-content: center;
+      z-index: 200;
+    }
+    .fab-add:hover {
+      transform: scale(1.08);
+      box-shadow: 0 6px 32px rgba(99,102,241,0.5);
     }
 
-    /* Group sections */
-    .group-section { scroll-margin-top: 80px; }
-    .group-section.hidden-group { display: none; }
+    /* ── Modal ── */
+    .modal-overlay {
+      position: fixed; inset: 0; z-index: 300;
+      background: rgba(0,0,0,0.6);
+      backdrop-filter: blur(4px);
+      display: none; align-items: center; justify-content: center;
+      padding: 1rem;
+    }
+    .modal-overlay.open { display: flex; }
+    .modal {
+      background: #111827;
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 1rem; padding: 2rem;
+      width: 100%; max-width: 500px;
+      max-height: 90vh; overflow-y: auto;
+    }
+    .modal h2 {
+      font-size: 1.25rem; font-weight: 700; color: #fff; margin-bottom: 1.5rem;
+    }
+    .form-group { margin-bottom: 1.25rem; }
+    .form-group label {
+      display: block; font-size: 0.8rem; font-weight: 600;
+      color: #94a3b8; margin-bottom: 0.4rem;
+    }
+    .form-group input,
+    .form-group textarea,
+    .form-group select {
+      width: 100%; padding: 0.6rem 0.85rem;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 0.5rem; color: #e2e8f0;
+      font-size: 0.9rem; font-family: inherit;
+      outline: none; transition: border-color 0.2s;
+    }
+    .form-group input:focus,
+    .form-group textarea:focus,
+    .form-group select:focus {
+      border-color: #6366f1;
+    }
+    .form-group textarea { resize: vertical; min-height: 80px; }
+    .form-group select option { background: #111827; }
+    .modal-actions {
+      display: flex; gap: 0.75rem; justify-content: flex-end; margin-top: 1.5rem;
+    }
+    .btn-cancel {
+      padding: 0.55rem 1.2rem; border-radius: 0.5rem;
+      background: rgba(255,255,255,0.06); color: #94a3b8;
+      border: 1px solid rgba(255,255,255,0.08);
+      font-size: 0.875rem; font-weight: 500; cursor: pointer;
+      transition: all 0.15s;
+    }
+    .btn-cancel:hover { background: rgba(255,255,255,0.1); }
+    .btn-save {
+      padding: 0.55rem 1.2rem; border-radius: 0.5rem;
+      background: #6366f1; color: #fff; border: none;
+      font-size: 0.875rem; font-weight: 600; cursor: pointer;
+      transition: all 0.15s;
+    }
+    .btn-save:hover { background: #4f46e5; }
 
-    /* CTA section */
-    .cta-section {
-      background: linear-gradient(135deg, #1c1917 0%, #292524 100%);
+    /* ── Loading ── */
+    .loading {
+      text-align: center; padding: 4rem 1rem;
+      color: #475569; font-size: 0.95rem;
+    }
+    .loading-spinner {
+      width: 32px; height: 32px; border: 3px solid rgba(99,102,241,0.2);
+      border-top-color: #6366f1; border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      margin: 0 auto 1rem;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── Empty State ── */
+    .empty-state {
+      text-align: center; padding: 4rem 1rem; color: #475569;
     }
 
-    /* Hide cards that don't match filter */
-    .use-card.hidden-card { display: none; }
-
-    /* ── Swipe mode ── */
-    .swipe-container {
-      position: relative; width: 100%; max-width: 480px; height: 400px;
-      margin: 0 auto; perspective: 1000px;
-    }
-    .swipe-card {
-      position: absolute; inset: 0; background: white; border-radius: 1.25rem;
-      border: 1px solid #e7e5e4; padding: 1.5rem; display: flex; flex-direction: column;
-      box-shadow: 0 8px 32px rgba(0,0,0,0.08); cursor: grab;
-      transition: transform 0.4s cubic-bezier(0.4,0,0.2,1), opacity 0.3s ease;
-      user-select: none; touch-action: none;
-    }
-    .swipe-card.dragging { transition: none; cursor: grabbing; }
-    .swipe-card.exit-left {
-      transform: translateX(-150%) rotate(-20deg); opacity: 0; pointer-events: none;
-    }
-    .swipe-card.exit-right {
-      transform: translateX(150%) rotate(20deg); opacity: 0; pointer-events: none;
-    }
-    .swipe-overlay {
-      position: absolute; top: 1.25rem; padding: 0.4rem 0.8rem;
-      border-radius: 0.5rem; font-weight: 700; font-size: 1.1rem; letter-spacing: 0.05em;
-      opacity: 0; transition: opacity 0.15s ease; pointer-events: none; text-transform: uppercase;
-    }
-    .overlay-yes { right: 1.25rem; border: 3px solid #16a34a; color: #16a34a; }
-    .overlay-no  { left: 1.25rem;  border: 3px solid #dc2626; color: #dc2626; }
-    .progress-fill { transition: width 0.4s ease; }
-
-    /* ── Mobile fullscreen swipe ── */
-    @media (max-width: 768px) {
-      .mobile-swipe-active nav,
-      .mobile-swipe-active .hero-section,
-      .mobile-swipe-active #featured-section,
-      .mobile-swipe-active .sticky-filter,
-      .mobile-swipe-active #groups-container,
-      .mobile-swipe-active .cta-section,
-      .mobile-swipe-active footer {
-        display: none !important;
-      }
-      .mobile-swipe-active {
-        overflow: hidden;
-        position: fixed;
-        width: 100%;
-        height: 100%;
-      }
-      .mobile-swipe-active #swipe-view {
-        display: flex !important;
-        flex-direction: column;
-        height: 100dvh;
-        padding: 1rem 1.25rem;
-        padding-bottom: calc(1.5rem + env(safe-area-inset-bottom, 0px));
-        box-sizing: border-box;
-        overflow: hidden;
-        gap: 1rem;
-      }
-      .mobile-swipe-active .swipe-container {
-        flex: 1 1 0;
-        min-height: 0;
-        height: auto;
-        max-width: 100%;
-        position: relative;
-      }
-      .mobile-swipe-active .swipe-card {
-        position: absolute;
-        inset: 0;
-        height: auto;
-        bottom: 0;
-        overflow-y: auto;
-      }
-      .mobile-swipe-active .swipe-buttons {
-        flex-shrink: 0;
-        padding: 0;
-      }
-      .mobile-swipe-active .swipe-buttons button {
-        width: 4.5rem;
-        height: 4.5rem;
-        font-size: 2rem;
-      }
-      .mobile-swipe-active #swipe-done {
-        flex: 1;
-        display: flex !important;
-        flex-direction: column;
-        justify-content: center;
-      }
-      .mobile-swipe-active #swipe-done.hidden {
-        display: none !important;
-      }
-    }
+    /* ── Hidden utility ── */
+    .hidden { display: none !important; }
   </style>
 </head>
 
-<body class="font-sans antialiased bg-[#FDFCF8] text-[#1C1C1C] selection:bg-stone-200 selection:text-stone-900">
+<body>
 
   <!-- Navigation -->
-  <nav class="fixed top-0 left-0 right-0 z-50 bg-white border-b border-stone-100">
-    <div class="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
-      <a href="./index.html" class="flex items-center gap-2">
-        <svg class="w-8 h-8 rounded-full shadow-sm" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 432.02 432.02">
-          <defs><linearGradient id="nav-grad" x1="33.29" y1="33.29" x2="398.73" y2="398.73" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#badcf4"/><stop offset="1" stop-color="#3fa4f4"/></linearGradient></defs>
-          <rect width="432.02" height="432.02" rx="113.66" ry="113.66" fill="url(#nav-grad)"/>
+  <nav class="nav">
+    <div class="nav-inner">
+      <a href="./index.html" class="nav-brand">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 432.02 432.02">
+          <defs><linearGradient id="ng" x1="33.29" y1="33.29" x2="398.73" y2="398.73" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#badcf4"/><stop offset="1" stop-color="#3fa4f4"/></linearGradient></defs>
+          <rect width="432.02" height="432.02" rx="113.66" ry="113.66" fill="url(#ng)"/>
           <g fill="#fff"><path d="M153.06,102.81c-7.23,0-13.09,50.68-13.09,113.2s5.86,113.2,13.09,113.2,13.09-50.68,13.09-113.2-5.86-113.2-13.09-113.2Z"/><ellipse cx="195.03" cy="187.9" rx="13.09" ry="59.96"/><ellipse cx="236.99" cy="247.71" rx="13.09" ry="54.79"/><path d="M278.96,97.84c-7.23,0-13.09,52.91-13.09,118.17s5.86,118.17,13.09,118.17,13.09-52.91,13.09-118.17-5.86-118.17-13.09-118.17Z"/><path d="M320.93,155.86c-7.23,0-13.09,26.93-13.09,60.15s5.86,60.15,13.09,60.15,13.09-26.93,13.09-60.15-5.86-60.15-13.09-60.15Z"/><path d="M111.09,144.42c-7.23,0-13.09,32.05-13.09,71.59s5.86,71.59,13.09,71.59,13.09-32.05,13.09-71.59-5.86-71.59-13.09-71.59Z"/></g>
         </svg>
-        <span class="text-lg font-semibold text-stone-900">tinyNature</span>
+        <span>tinypeople</span>
       </a>
-      <div class="flex items-center gap-4">
-        <a href="./index.html" class="text-sm text-stone-600 hover:text-stone-900 transition-colors font-medium">Home</a>
-        <a href="https://wa.me/14242421336" target="_blank" class="bg-stone-900 text-white text-sm font-medium px-4 py-2 rounded-full hover:bg-stone-800 transition-colors">Early Access</a>
+      <div class="nav-links">
+        <a href="./index.html">Home</a>
+        <span id="auth-area">
+          <button class="btn-admin" id="btn-login">Admin</button>
+        </span>
       </div>
     </div>
   </nav>
 
-  <!-- Hero Section -->
-  <section class="hero-section pt-32 pb-8 px-4">
-    <div class="max-w-6xl mx-auto text-center">
-      <h1 class="text-4xl md:text-5xl font-bold font-serif-title tracking-tight text-stone-900 mb-4">What can tinyNature do?</h1>
-      <p class="text-lg text-stone-500 max-w-2xl mx-auto leading-relaxed">Real use cases from real people. Organized by what you want to achieve, not what the tech does.</p>
-    </div>
-  </section>
+  <!-- Header -->
+  <header class="page-header">
+    <h1>Use Cases</h1>
+    <p>Explore what tinypeople can do — from saving time to knowing yourself better.</p>
+  </header>
 
-  <!-- Featured / Most Popular Section -->
-  <section class="max-w-6xl mx-auto px-4 pb-10" id="featured-section">
-    <div class="flex items-center gap-3 mb-6">
-      <span class="text-sm font-semibold text-amber-600 uppercase tracking-wider">Most Popular</span>
-      <div class="flex-1 h-px bg-stone-200"></div>
-    </div>
-    <div class="featured-grid" id="featured-grid"></div>
-  </section>
-
-  <!-- Sticky Filter Tags -->
-  <div class="sticky-filter bg-[#FDFCF8] border-b border-stone-100 py-3">
-    <div class="max-w-6xl mx-auto px-4 overflow-hidden">
-      <div class="filter-scroll flex gap-2 pb-1" id="tag-bar"></div>
+  <!-- Filter Tabs -->
+  <div class="filter-bar">
+    <div class="filter-scroll" id="filter-tabs">
+      <button class="filter-tab active" data-category="All">All</button>
+      <button class="filter-tab" data-category="Work & Productivity">Work & Productivity</button>
+      <button class="filter-tab" data-category="Health & Body">Health & Body</button>
+      <button class="filter-tab" data-category="Self-Knowledge">Self-Knowledge</button>
+      <button class="filter-tab" data-category="Family & Relationships">Family & Relationships</button>
+      <button class="filter-tab" data-category="Finance">Finance</button>
+      <button class="filter-tab" data-category="Learning & Creativity">Learning & Creativity</button>
+      <button class="filter-tab" data-category="Travel & Home">Travel & Home</button>
     </div>
   </div>
 
-  <!-- Outcome Group Sections -->
-  <main class="max-w-6xl mx-auto px-4 py-8" id="groups-container"></main>
+  <!-- Card Grid -->
+  <main class="grid-container">
+    <div id="loading" class="loading">
+      <div class="loading-spinner"></div>
+      Loading use cases...
+    </div>
+    <div class="card-grid" id="card-grid"></div>
+    <div class="empty-state hidden" id="empty-state">No use cases found for this category.</div>
+  </main>
 
-  <!-- Call to Action -->
-  <section class="cta-section py-20 px-4 mt-8">
-    <div class="max-w-3xl mx-auto text-center">
-      <h2 class="text-3xl md:text-4xl font-bold text-white mb-4 font-serif-title">Your AI that actually knows you.</h2>
-      <p class="text-lg text-stone-400 mb-8 leading-relaxed">tinyNature remembers your context, anticipates your needs, and acts — so you don't have to.</p>
-      <div class="flex flex-col sm:flex-row items-center justify-center gap-4">
-        <a href="https://wa.me/14242421336" target="_blank" class="bg-white text-stone-900 text-sm font-semibold px-8 py-3 rounded-full hover:bg-stone-100 transition-colors">Get early access</a>
-        <a href="https://wa.me/14242421336" target="_blank" class="text-stone-400 text-sm hover:text-white transition-colors">Already a user? Open tinyNature &rarr;</a>
-      </div>
-    </div>
-  </section>
+  <!-- Admin: Add FAB -->
+  <button class="fab-add hidden" id="fab-add" title="Add use case">+</button>
 
-  <!-- Swipe View (mobile only) -->
-  <div class="hidden" id="swipe-view">
-    <div class="max-w-md mx-auto">
-      <div class="flex items-center justify-between mb-2">
-        <span id="swipe-progress-text" class="text-sm font-medium text-stone-600">0 / 0</span>
-        <span class="text-xs text-stone-400">swipe or tap below</span>
-      </div>
-      <div class="w-full h-1 bg-stone-100 rounded-full overflow-hidden">
-        <div id="swipe-progress-bar" class="progress-fill h-full bg-stone-900 rounded-full" style="width:0%"></div>
-      </div>
-    </div>
-    <div class="swipe-container" id="swipe-container"></div>
-    <div class="swipe-buttons flex items-center justify-center" style="gap:3rem">
-      <button onclick="swipeAction('reject')" class="rounded-full border-2 border-red-200 bg-red-50 flex items-center justify-center text-red-500 text-3xl font-bold hover:bg-red-100 active:scale-90 transition-all cursor-pointer" style="width:4.5rem;height:4.5rem" title="Skip">&times;</button>
-      <button onclick="swipeAction('shortlist')" class="rounded-full border-2 border-green-200 bg-green-50 flex items-center justify-center text-green-500 text-3xl font-bold hover:bg-green-100 active:scale-90 transition-all cursor-pointer" style="width:4.5rem;height:4.5rem" title="Interested">&check;</button>
-    </div>
-    <div id="swipe-done" class="hidden text-center py-16">
-      <div class="text-5xl mb-4">&#10003;</div>
-      <h2 class="text-2xl font-bold text-stone-900 mb-2">All done!</h2>
-      <p class="text-stone-500 mb-6" id="swipe-done-text"></p>
-      <a href="https://wa.me/14242421336" target="_blank" class="inline-block px-6 py-3 bg-stone-900 text-white rounded-full text-sm font-medium hover:bg-stone-800 transition-colors">Get early access</a>
+  <!-- Modal: Add/Edit -->
+  <div class="modal-overlay" id="modal-overlay">
+    <div class="modal">
+      <h2 id="modal-title">Add Use Case</h2>
+      <form id="use-form">
+        <input type="hidden" id="form-id">
+        <div class="form-group">
+          <label for="form-title">Title</label>
+          <input type="text" id="form-title" required>
+        </div>
+        <div class="form-group">
+          <label for="form-desc">Short Description</label>
+          <textarea id="form-desc" required></textarea>
+        </div>
+        <div class="form-group">
+          <label for="form-category">Category</label>
+          <select id="form-category" required>
+            <option value="">Select…</option>
+            <option>Work & Productivity</option>
+            <option>Health & Body</option>
+            <option>Self-Knowledge</option>
+            <option>Family & Relationships</option>
+            <option>Finance</option>
+            <option>Learning & Creativity</option>
+            <option>Travel & Home</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="form-type">Type</label>
+          <select id="form-type" required>
+            <option value="">Select…</option>
+            <option value="Proactive">Proactive</option>
+            <option value="Reactive">Reactive</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="form-score">Sort Score (higher = shown first)</label>
+          <input type="number" id="form-score" min="0" max="1000" value="50" required>
+        </div>
+        <div class="modal-actions">
+          <button type="button" class="btn-cancel" id="btn-cancel">Cancel</button>
+          <button type="submit" class="btn-save">Save</button>
+        </div>
+      </form>
     </div>
   </div>
-
-  <!-- Footer -->
-  <footer class="border-t border-stone-100 py-8">
-    <div class="max-w-6xl mx-auto px-4 text-center text-sm text-stone-400">
-      &copy; 2025 tinyNature. All rights reserved.
-    </div>
-  </footer>
 
   <script>
-    // ══════════════════════════════════════════════
-    //  USE CASE DATA
-    // ══════════════════════════════════════════════
-
-    const useCases = {
-      1:   { title: "Get notified only when a real person emails you", desc: "Filters out newsletters, promotions, and automated messages. You only hear about emails from actual humans.", type: "proactive" },
-      2:   { title: "Search your inbox by context, not keywords", desc: "Find emails by describing what you're looking for — 'that email about the apartment from last month.'", type: "reactive" },
-      3:   { title: "Draft and send emails in your voice", desc: "Give a quick instruction and the AI writes and sends it matching your tone.", type: "reactive" },
-      4:   { title: "Get a daily summary of important emails", desc: "Every morning, receive a digest of only the emails that matter — from real people, requiring a response.", type: "proactive" },
-      5:   { title: "Unsubscribe from services by just saying so", desc: "Say 'unsubscribe me from this' and the AI handles the unsubscribe link, confirmation, or cancellation.", type: "reactive" },
-      6:   { title: "Auto-forward confirmation codes and tracking numbers", desc: "2FA codes, order confirmations, and shipping updates detected and forwarded instantly.", type: "proactive" },
-      7:   { title: "Rewrite any email in a different tone", desc: "Have any email rewritten — professional, friendly, firm, or apologetic.", type: "reactive" },
-      8:   { title: "Add events in natural language", desc: "'Lunch with Sarah Friday at 1pm at Nobu' — calendar event created with all details.", type: "reactive" },
-      9:   { title: "Get briefed 30 minutes before every meeting", desc: "Automatic pre-meeting briefings with attendee info, agenda, and relevant context.", type: "proactive" },
-      10:  { title: "Get a morning overview of your day", desc: "Weather, calendar, key emails, reminders — delivered every morning before you ask.", type: "proactive" },
-      11:  { title: "Detect and resolve scheduling conflicts", desc: "Spots double-bookings and suggests which meeting to move, before you notice.", type: "proactive" },
-      12:  { title: "Set a one-time reminder for anything", desc: "'Remind me to buy creatine and shampoo' — simple, reliable reminders.", type: "reactive" },
-      13:  { title: "Set recurring daily reminders", desc: "Daily nudges for habits, medication, or routines.", type: "proactive" },
-      14:  { title: "Never forget a birthday", desc: "Tracks birthdays from your contacts and reminds you the day before with gift suggestions.", type: "proactive" },
-      15:  { title: "Context-aware reminders", desc: "'Remind me what I still need to do today' — a smart check-in based on your tasks and calendar.", type: "reactive" },
-      16:  { title: "Build and maintain a running shopping list", desc: "Add items by voice or text anytime. Organized by category, always up to date.", type: "reactive" },
-      17:  { title: "Track packages without digging through email", desc: "Extracts tracking numbers from emails and alerts you on delivery.", type: "proactive" },
-      18:  { title: "Product picker from a photo", desc: "Snap a photo of a store shelf plus your specific need and get the best product recommended.", type: "reactive" },
-      19:  { title: "Outfit planner from wardrobe photos", desc: "Photograph your clothes and get outfit suggestions matched to occasion, weather, and style.", type: "reactive" },
-      20:  { title: "Thoughtful gift finder", desc: "Describe someone's interests, personality, and budget — get creative, specific gift ideas.", type: "reactive" },
-      21:  { title: "Get directions by just saying where you're going", desc: "Say the destination, get a Google Maps link. No typing, no app switching.", type: "reactive" },
-      22:  { title: "Find the nearest specific type of place", desc: "'Which butcher is closest to me?' — instant answers with distance and directions.", type: "reactive" },
-      23:  { title: "Get directions sent before you need to leave", desc: "Checks your calendar and sends directions proactively so you leave on time.", type: "proactive" },
-      24:  { title: "Find a restaurant that matches your vibe", desc: "'Somewhere chill with good pasta, low light, not touristy' — the right spot based on mood.", type: "reactive" },
-      25:  { title: "Fridge leftover recipe builder", desc: "List what's in your fridge, get a recipe that doesn't require a grocery run.", type: "reactive" },
-      26:  { title: "Weekly meal plan with shopping list", desc: "A full week of meals based on dietary preferences, then a shopping list by store section.", type: "reactive" },
-      27:  { title: "Real-time cooking coach (hands-free)", desc: "Voice guidance while cooking — timing, technique, substitutions without touching your phone.", type: "reactive" },
-      28:  { title: "Personalized dietary advisor", desc: "Remembers all your allergies, diets, and preferences. Just say 'what should I eat?'", type: "reactive" },
-      29:  { title: "Track medication timing and dosages", desc: "Ask 'can I take another pill?' and the AI checks when you last took it.", type: "reactive" },
-      30:  { title: "Daily supplement reminder", desc: "Gentle daily nudge with interaction warnings if you're on other medications.", type: "proactive" },
-      31:  { title: "Describe symptoms and get practical guidance", desc: "Practical advice on what to try, when to see a doctor, and what to ask them.", type: "reactive" },
-      32:  { title: "Doctor appointment prep", desc: "Organize your symptoms, timeline, and questions before a visit.", type: "reactive" },
-      33:  { title: "Medical results explainer", desc: "Explain lab results and blood work in plain language.", type: "reactive" },
-      34:  { title: "Weight loss accountability coach", desc: "Checks in daily, tracks patterns, and keeps you honest without judgment.", type: "proactive" },
-      35:  { title: "Plant doctor", desc: "Send a photo of a sick plant, get a diagnosis and care plan.", type: "reactive" },
-      36:  { title: "Get a personalized training plan", desc: "A weekly plan that adapts based on your goals, equipment, and how you're feeling.", type: "reactive" },
-      37:  { title: "Log gym workouts by voice", desc: "'Deadlift 100kg, 5 reps' — hands-free logging without touching your phone.", type: "reactive" },
-      38:  { title: "Query your Apple Health data", desc: "'What was my resting heart rate this week?' — natural language access to health data.", type: "reactive" },
-      39:  { title: "3AM anxiety support", desc: "Voice-based breathing exercises and grounding when you can't sleep and can't call anyone.", type: "reactive" },
-      40:  { title: "Difficult conversation rehearsal", desc: "Role-play tough conversations before having them. Reduces anxiety, finds the right words.", type: "reactive" },
-      41:  { title: "Therapy session prep", desc: "Brainstorm topics and organize thoughts before a therapy appointment.", type: "reactive" },
-      42:  { title: "Daily mood voice journal", desc: "Daily voice check-in that tracks mood over time and surfaces trends.", type: "proactive" },
-      43:  { title: "Cognitive distortion checker", desc: "Voice-journal your thoughts and the AI identifies thinking patterns to help you reframe.", type: "reactive" },
-      44:  { title: "What am I best at?", desc: "The AI surfaces your underutilized strengths and where you could apply them more effectively.", type: "reactive" },
-      45:  { title: "Personal blind spot detector", desc: "Identifies cognitive patterns, limiting beliefs, and underutilized strengths you don't see.", type: "proactive" },
-      46:  { title: "Weekly behavior pattern report", desc: "A proactive summary of what topics you keep returning to, mood shifts, and recurring concerns.", type: "proactive" },
-      47:  { title: "Eisenhower matrix task sorter", desc: "Dump your entire to-do list and have it categorized into Urgent-Important quadrants.", type: "reactive" },
-      48:  { title: "Energy-based schedule builder", desc: "Redesigns your schedule around peak performance windows instead of arbitrary time blocks.", type: "reactive" },
-      49:  { title: "Weekly accountability partner", desc: "Honest analysis of whether your actions match your priorities.", type: "proactive" },
-      50:  { title: "Decision resolver", desc: "For any decision — trivial or major — get an in-depth pros-and-cons breakdown.", type: "reactive" },
-      51:  { title: "See their side (conflict resolution)", desc: "Describe a disagreement and genuinely understand the other person's perspective.", type: "reactive" },
-      52:  { title: "Career pivot coach", desc: "Get coached through career decisions based on your skills, interests, and history.", type: "reactive" },
-      53:  { title: "Salary negotiation coach", desc: "Simulate salary conversations where the AI plays your manager and gives feedback.", type: "reactive" },
-      54:  { title: "Landlord dispute letter drafter", desc: "Describe the situation. Get a firm, professional letter ready to send.", type: "reactive" },
-      55:  { title: "Contract and fine print analyzer", desc: "Paste any contract and get a plain-English breakdown of the risks.", type: "reactive" },
-      56:  { title: "Consumer complaint escalation", desc: "Draft escalation emails referencing consumer protection rights.", type: "reactive" },
-      57:  { title: "Language practice partner", desc: "Hold conversations in any language with real-time corrections. Voice-first, not text.", type: "reactive" },
-      58:  { title: "Explain anything like I'm five", desc: "Break down any complex topic into simple, clear language.", type: "reactive" },
-      59:  { title: "Textbook chapter summarizer + quiz generator", desc: "Summarize any chapter, then generate practice questions to test yourself.", type: "reactive" },
-      60:  { title: "Voice flashcard quizzer", desc: "Generate flashcard-style Q&A from any topic. Study by voice during walks or commutes.", type: "reactive" },
-      61:  { title: "Personalized bedtime stories", desc: "Custom stories with your kid's name, favorite characters, and a moral lesson.", type: "reactive" },
-      62:  { title: "On-demand homework tutor", desc: "24/7 voice tutor for kids — math, science, extra practice problems.", type: "reactive" },
-      63:  { title: "Kid activity generator", desc: "Age-appropriate activities, scavenger hunts, car ride games on demand.", type: "reactive" },
-      64:  { title: "Parenting situation advisor", desc: "Real-time advice on tantrums, sibling conflicts, screen time — judgment-free.", type: "reactive" },
-      65:  { title: "Voice note transcription", desc: "Send a voice note, get it transcribed, cleaned up, and organized.", type: "reactive" },
-      66:  { title: "Meeting notes from a voice ramble", desc: "Ramble about a meeting and get structured notes with action items.", type: "reactive" },
-      67:  { title: "Handwritten notes transcriber", desc: "Photo of messy notes gets transcribed, organized, and summarized.", type: "reactive" },
-      68:  { title: "Draft a video script in your voice", desc: "Give a topic, get a script that sounds like you.", type: "reactive" },
-      69:  { title: "Reply suggestion from a screenshot", desc: "Send a screenshot of a message and get a suggested reply matched to tone.", type: "reactive" },
-      70:  { title: "Ask any factual question — no app switching", desc: "Quick answers to anything without leaving what you're doing.", type: "reactive" },
-      71:  { title: "Summarize any URL", desc: "Paste a link and get the key points in seconds.", type: "reactive" },
-      72:  { title: "Deep research sprint", desc: "'Research this topic for me' — sourced findings, key arguments, and a summary.", type: "reactive" },
-      73:  { title: "Weather contextualized to your plans", desc: "Not just 'it'll rain' but 'it'll rain during your outdoor meeting.'", type: "proactive" },
-      74:  { title: "Social advice in real-time", desc: "In-the-moment guidance on tricky social situations.", type: "reactive" },
-      75:  { title: "What to do tonight in your city", desc: "Events, restaurants, and activities personalized to your interests and location.", type: "reactive" },
-      76:  { title: "Profile someone before a meeting", desc: "Quick research on someone's public profile and interests before a first meeting.", type: "reactive" },
-      77:  { title: "Create a tracking spreadsheet by describing it", desc: "Describe what you need tracked — the AI builds the structure and populates it.", type: "reactive" },
-      78:  { title: "Write long documents by dictating", desc: "Describe or dictate a document and have it created with proper formatting.", type: "reactive" },
-      79:  { title: "Log ideas to a running document", desc: "Say it out loud. The AI adds it to your running ideas doc.", type: "reactive" },
-      80:  { title: "Translate a photo of text instantly", desc: "Point your camera at a sign, menu, or document — instant translation.", type: "reactive" },
-      81:  { title: "Quick word lookups between languages", desc: "Instant translations without switching apps.", type: "reactive" },
-      82:  { title: "Email contractors for quotes", desc: "Describe the job, the AI drafts and sends a professional quote request.", type: "reactive" },
-      83:  { title: "Track apartment maintenance tasks", desc: "Running list of repairs with reminders when things are overdue.", type: "proactive" },
-      84:  { title: "Check if a train or flight is on time", desc: "Quick real-time status checks without hunting through apps.", type: "reactive" },
-      85:  { title: "Add travel bookings to calendar automatically", desc: "Forward a booking confirmation — dates, times, locations added to your calendar.", type: "proactive" },
-      86:  { title: "Ramble a thought, AI extracts the actionable parts", desc: "Talk freely. The AI structures it into decisions, action items, and follow-ups.", type: "reactive" },
-      87:  { title: "Hands-free briefings", desc: "Get spoken updates while cooking, commuting, or winding down.", type: "proactive" },
-      88:  { title: "Research an investor before a meeting", desc: "Automatic briefing on their fund thesis, recent investments, and alignment.", type: "proactive" },
-      89:  { title: "Build a Google Sheet of target investors", desc: "Find and organize 100+ relevant investors with filtering by sector and geography.", type: "reactive" },
-      90:  { title: "Simulate a VC reading your pitch", desc: "The AI plays a critical VC and tears apart your pitch so you can fix it.", type: "reactive" },
-      91:  { title: "Expense tracking via text", desc: "Just say what you spent. It logs, categorizes, and spots patterns.", type: "reactive" },
-      92:  { title: "Subscription renewal alerts", desc: "Warns you before you get charged — giving you time to cancel.", type: "proactive" },
-      93:  { title: "Dream journal from morning voice notes", desc: "Send a voice note each morning. The AI transcribes and organizes your dreams.", type: "proactive" },
-      94:  { title: "NatureDex — a real-life Pokedex for nature", desc: "Snap a photo of any animal or plant. The AI identifies it and builds your personal encyclopedia.", type: "reactive" },
-      95:  { title: "Morning brain dump", desc: "Dump everything swirling in your head. The AI sorts it into urgent vs important.", type: "reactive" },
-      96:  { title: "Conversational journaling", desc: "Talk about your day. The AI logs a structured journal entry and tracks trends.", type: "proactive" },
-      97:  { title: "Pattern-based nudges", desc: "tinyNature notices behavioral patterns and gently nudges you toward your goals.", type: "proactive" },
-      98:  { title: "Opportunity alerts", desc: "Connects your wishes to real-world opportunities as they appear.", type: "proactive" },
-      99:  { title: "Milestone celebrations + personal records", desc: "Notices achievements you haven't tracked consciously and celebrates them.", type: "proactive" },
-      100: { title: "Financial intelligence — spending anomaly detection", desc: "Flags unusual spending before it becomes a problem.", type: "proactive" },
-      101: { title: "Living book advisor", desc: "Tell the AI to study a book. Query it against real-life situations.", type: "reactive" },
-      102: { title: "Mentor mode — 'what would they say?'", desc: "Describe someone you admire. Get 'what would they say about this?' grounded in your context.", type: "reactive" },
-      103: { title: "Meal and nutrition log from photos", desc: "Send a photo or say what you had — logged with rough macros and weekly trends.", type: "reactive" },
-      104: { title: "Personal CRM — networking tracker", desc: "Log meetings with people. Builds a personal relationship database with follow-up reminders.", type: "reactive" },
-      105: { title: "Social event planner", desc: "'Organize a dinner for 6 Saturday' — checks calendar, drafts messages, tracks RSVPs.", type: "reactive" },
-      106: { title: "Health pattern detection", desc: "Cross-references mood, sleep, fitness, and food to surface potential health patterns.", type: "proactive" },
-      107: { title: "Gratitude and wins log", desc: "Daily prompt: 'What went well today?' On bad days, surfaces past wins.", type: "proactive" },
-      108: { title: "Life audit — stated vs. revealed priorities", desc: "Analyzes what you say your priorities are vs how you actually spend your time.", type: "proactive" },
-      109: { title: "Niche interest companion", desc: "Passionate about something niche? The AI remembers, engages deeply, and builds on it.", type: "reactive" },
-      110: { title: "Year-in-review generator", desc: "Compiles all tracked data into a personal annual report. Your Spotify Wrapped for life.", type: "proactive" },
-      111: { title: "Auto-capture wishlist", desc: "Catches purchase intent from natural conversation. You never say 'add this' — it just notices.", type: "proactive" },
-      112: { title: "Gift ideas auto-capture", desc: "Stores gift ideas under each person's name. Surfaces before birthdays and holidays.", type: "proactive" },
-      113: { title: "Watch and listen list", desc: "Movies, shows, podcasts mentioned in passing — captured and organized automatically.", type: "proactive" },
-      114: { title: "Trip and experience bucket list", desc: "Your personal bucket list that builds itself from conversation.", type: "proactive" },
-      115: { title: "Turn any chat into a structured doc", desc: "Say 'turn this into a doc' and get a structured Google Doc from the thread.", type: "reactive" },
-      116: { title: "Interview prep role-play", desc: "The AI plays the interviewer, asks tough questions, and gives feedback.", type: "reactive" },
-      117: { title: "Move and relocation assistant", desc: "Tracks every task of moving in one place. Sends reminders, keeps everything organized.", type: "proactive" },
-      118: { title: "Couples budget tracker", desc: "Both partners report expenses — shared tracking with progress toward shared goals.", type: "proactive" },
-      119: { title: "Roommate expense splitting", desc: "Tracks who owes who, maintains a running balance, sends settlement reminders.", type: "proactive" },
-      120: { title: "Shared trip planning", desc: "Collects preferences, finds dates, builds an itinerary, and tracks shared budget.", type: "reactive" },
-      121: { title: "Family hub — household operating system", desc: "Shared calendar, grocery lists, chore tracking — the household OS, automated.", type: "proactive" },
-      122: { title: "Proactive calendar optimization", desc: "Suggests batching meetings, protecting deep work, and flags overcommitment.", type: "proactive" },
-      123: { title: "Weekly review and wrap-up", desc: "Every Sunday, a combined review of your calendar, emails, trackers, and goals.", type: "proactive" },
-      124: { title: "Reading log + living library", desc: "Logs books with your reactions. Ask 'what did I think of that book?' and get your own review.", type: "reactive" },
-      125: { title: "Roast me based on our conversations", desc: "Brutally accurate, uncomfortably funny roasts based on your habits and contradictions.", type: "reactive" },
-      126: { title: "What do I not know about myself?", desc: "Surfaces hidden patterns and blind spots from your conversation history.", type: "reactive" },
-      127: { title: "Five questions for my future self", desc: "Forces deep reflection on where you're heading.", type: "reactive" },
-      128: { title: "Red flags in how I communicate", desc: "Analyzes your communication patterns and mirrors them back.", type: "reactive" },
+    // ─── Firebase Config ───
+    // TODO: Replace with your actual Firebase project config
+    const firebaseConfig = {
+      apiKey: "AIzaSyDummyKeyReplace",
+      authDomain: "tinypeople-use2.firebaseapp.com",
+      projectId: "tinypeople-use2",
+      storageBucket: "tinypeople-use2.appspot.com",
+      messagingSenderId: "000000000000",
+      appId: "1:000000000000:web:0000000000000000"
     };
 
-    // ══════════════════════════════════════════════
-    //  FEATURED USE CASES
-    // ══════════════════════════════════════════════
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+    const auth = firebase.auth();
+    const provider = new firebase.auth.GoogleAuthProvider();
 
-    const featuredIds = [34, 91, 100, 10, 97, 54, 55, 87];
-
-    // ══════════════════════════════════════════════
-    //  OUTCOME GROUPS
-    // ══════════════════════════════════════════════
-
-    const groups = [
-      {
-        name: "Save Time",
-        outcome: "Eliminate repetitive tasks, cut friction from daily life.",
-        tags: ["Daily Habits", "Work"],
-        caseIds: [1,2,3,4,5,6,7,8,9,10,11,122,86,87,70,71,80,81]
-      },
-      {
-        name: "Never Forget Anything",
-        outcome: "Always remember what matters — birthdays, tasks, follow-ups, promises.",
-        tags: ["Daily Habits", "Relationships"],
-        caseIds: [12,13,14,15,16,17,104,111,112,113,114,79]
-      },
-      {
-        name: "Stay on Top of Your Money",
-        outcome: "Track spending, catch anomalies, and stay financially aware without effort.",
-        tags: ["Finance"],
-        caseIds: [91,100,92,118,119,53,54,55,56]
-      },
-      {
-        name: "Live Healthier",
-        outcome: "Build better habits, track your body, and take control of your health.",
-        tags: ["Health", "Food"],
-        caseIds: [29,30,31,32,33,34,35,106,36,37,38,24,25,26,27,28,103]
-      },
-      {
-        name: "Know Yourself Better",
-        outcome: "Discover patterns, blind spots, and insights about who you really are.",
-        tags: ["Self-Knowledge"],
-        caseIds: [44,125,126,127,128,45,46,108,109,110,39,40,41,42,43,107,93,95,96,94,97,98,99]
-      },
-      {
-        name: "Make Better Decisions",
-        outcome: "Think more clearly, resolve conflicts, and act with confidence.",
-        tags: ["Self-Knowledge", "Work"],
-        caseIds: [47,48,49,50,51,52,123,101,102,53,55]
-      },
-      {
-        name: "Be More Creative",
-        outcome: "Write better, faster, and in your own voice.",
-        tags: ["Creativity", "Work"],
-        caseIds: [65,66,67,68,69,124,77,78,115,72]
-      },
-      {
-        name: "Learn Faster",
-        outcome: "Absorb knowledge, master skills, and prepare like a pro.",
-        tags: ["Learning"],
-        caseIds: [57,58,59,60,116,70,71,72,73,88,89,90]
-      },
-      {
-        name: "Manage Life Together",
-        outcome: "Coordinate with your partner, family, or roommates without friction.",
-        tags: ["Family", "Relationships", "Home"],
-        caseIds: [118,119,120,121,61,62,63,64,82,83,117,74,75,76,105]
-      },
-      {
-        name: "Navigate and Explore",
-        outcome: "Get where you're going, discover what's around you, and travel effortlessly.",
-        tags: ["Travel", "Daily Habits"],
-        caseIds: [21,22,23,84,85,18,19,20]
-      },
+    // ─── Authorized admin emails ───
+    const ADMIN_EMAILS = [
+      // Add authorized admin emails here
+      // "admin@example.com"
     ];
 
-    // ══════════════════════════════════════════════
-    //  TAG COUNTS
-    // ══════════════════════════════════════════════
+    // ─── State ───
+    let useCases = [];
+    let currentCategory = 'All';
+    let isAdmin = false;
 
-    const allTags = ["Health", "Finance", "Daily Habits", "Self-Knowledge", "Work", "Relationships", "Learning", "Creativity", "Family", "Travel", "Food", "Home"];
+    // ─── DOM refs ───
+    const cardGrid = document.getElementById('card-grid');
+    const loadingEl = document.getElementById('loading');
+    const emptyEl = document.getElementById('empty-state');
+    const fabAdd = document.getElementById('fab-add');
+    const modalOverlay = document.getElementById('modal-overlay');
+    const useForm = document.getElementById('use-form');
+    const authArea = document.getElementById('auth-area');
 
-    function getTagCount(tag) {
-      const ids = new Set();
-      groups.forEach(g => {
-        if (g.tags.includes(tag)) {
-          g.caseIds.forEach(id => ids.add(id));
-        }
-      });
-      return ids.size;
-    }
+    // ─── Auth ───
+    document.getElementById('btn-login').addEventListener('click', () => {
+      auth.signInWithPopup(provider).catch(err => console.error('Auth error:', err));
+    });
 
-    // ══════════════════════════════════════════════
-    //  STATE
-    // ══════════════════════════════════════════════
-
-    let activeTag = null;
-
-    // ══════════════════════════════════════════════
-    //  RENDER
-    // ══════════════════════════════════════════════
-
-    function createCard(id, isFeatured) {
-      const uc = useCases[id];
-      if (!uc) return '';
-      const isProactive = uc.type === 'proactive';
-      const badgeClass = isProactive ? 'badge-proactive' : 'badge-reactive';
-      const badgeLabel = isProactive ? 'Proactive' : 'Reactive';
-      const badgeDot = isProactive ? 'bg-amber-400' : 'bg-teal-400';
-      const featuredClass = isFeatured ? 'featured' : '';
-      const starHtml = isFeatured ? '<span class="text-amber-500 text-sm" title="Most Popular">&#9733;</span>' : '';
-
-      return `
-        <div class="use-card ${featuredClass}" data-id="${id}">
-          <div class="flex items-center justify-between mb-3">
-            <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium ${badgeClass}">
-              <span class="w-2 h-2 rounded-full ${badgeDot}"></span>
-              ${badgeLabel}
-            </span>
-            ${starHtml}
-          </div>
-          <h3 class="text-base font-semibold text-stone-900 mb-2 leading-snug">${uc.title}</h3>
-          <p class="text-sm text-stone-500 leading-relaxed">${uc.desc}</p>
-          <div class="card-cta mt-3 pt-3 border-t border-stone-100">
-            <a href="https://wa.me/14242421336" target="_blank" class="text-xs font-medium text-stone-900 hover:text-stone-600 transition-colors">Try this &rarr;</a>
-          </div>
-        </div>
-      `;
-    }
-
-    function renderFeatured() {
-      document.getElementById('featured-grid').innerHTML = featuredIds.map(id => createCard(id, true)).join('');
-    }
-
-    function renderTags() {
-      const bar = document.getElementById('tag-bar');
-      const totalCount = Object.keys(useCases).length;
-      let html = `<button class="tag-pill px-4 py-2 rounded-full text-sm font-medium border border-stone-200 active" data-tag="all" onclick="filterByTag(null)">All <span class="text-xs opacity-60">${totalCount}</span></button>`;
-      allTags.forEach(tag => {
-        const count = getTagCount(tag);
-        if (count > 0) {
-          html += `<button class="tag-pill px-4 py-2 rounded-full text-sm font-medium border border-stone-200 bg-white text-stone-600 hover:bg-stone-50" data-tag="${tag}" onclick="filterByTag('${tag}')">${tag} <span class="text-xs opacity-60">${count}</span></button>`;
-        }
-      });
-      bar.innerHTML = html;
-    }
-
-    function renderGroups() {
-      const container = document.getElementById('groups-container');
-      let html = '';
-      groups.forEach((g, idx) => {
-        const tagAttr = g.tags.join(',');
-        html += `
-          <section class="group-section mb-16" data-group-tags="${tagAttr}" id="group-${idx}">
-            <div class="mb-6">
-              <h2 class="text-2xl md:text-3xl font-bold text-stone-900 font-serif-title mb-1">${g.name}</h2>
-              <p class="text-base text-stone-500">${g.outcome}</p>
-            </div>
-            <div class="use-grid">
-              ${g.caseIds.map(id => createCard(id, featuredIds.includes(id))).join('')}
-            </div>
-          </section>
+    auth.onAuthStateChanged(user => {
+      if (user && ADMIN_EMAILS.includes(user.email)) {
+        isAdmin = true;
+        authArea.innerHTML = `
+          <span style="color:#818cf8;font-size:0.8rem;font-weight:500;margin-right:0.5rem">${user.email}</span>
+          <button class="btn-signout" id="btn-signout">Sign Out</button>
         `;
-      });
-      container.innerHTML = html;
-    }
-
-    // ══════════════════════════════════════════════
-    //  FILTER BY TAG
-    // ══════════════════════════════════════════════
-
-    function filterByTag(tag) {
-      activeTag = tag;
-
-      // Update pill styles
-      document.querySelectorAll('.tag-pill').forEach(pill => {
-        const pillTag = pill.dataset.tag;
-        if ((!tag && pillTag === 'all') || pillTag === tag) {
-          pill.classList.add('active');
-        } else {
-          pill.classList.remove('active');
-        }
-      });
-
-      // Filter groups
-      document.querySelectorAll('.group-section').forEach(section => {
-        if (!tag) {
-          section.classList.remove('hidden-group');
-        } else {
-          const groupTags = section.dataset.groupTags.split(',');
-          section.classList.toggle('hidden-group', !groupTags.includes(tag));
-        }
-      });
-
-      // Show/hide featured section
-      const featuredSection = document.getElementById('featured-section');
-      if (!tag) {
-        featuredSection.style.display = '';
+        document.getElementById('btn-signout').addEventListener('click', () => auth.signOut());
+        fabAdd.classList.remove('hidden');
+        fabAdd.style.display = 'flex';
+        renderCards();
       } else {
-        const hasMatch = featuredIds.some(id =>
-          groups.some(g => g.tags.includes(tag) && g.caseIds.includes(id))
-        );
-        featuredSection.style.display = hasMatch ? '' : 'none';
+        isAdmin = false;
+        authArea.innerHTML = '<button class="btn-admin" id="btn-login">Admin</button>';
+        document.getElementById('btn-login').addEventListener('click', () => {
+          auth.signInWithPopup(provider).catch(err => console.error('Auth error:', err));
+        });
+        fabAdd.classList.add('hidden');
+        fabAdd.style.display = 'none';
+        renderCards();
       }
+    });
+
+    // ─── Firestore: Load use cases ───
+    function loadUseCases() {
+      db.collection('useCases')
+        .orderBy('sort_score', 'desc')
+        .onSnapshot(snapshot => {
+          useCases = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+          loadingEl.classList.add('hidden');
+          renderCards();
+        }, err => {
+          console.error('Firestore error:', err);
+          loadingEl.innerHTML = 'Failed to load use cases. Check console for details.';
+        });
     }
 
-    // ══════════════════════════════════════════════
-    //  INIT
-    // ══════════════════════════════════════════════
+    // ─── Render Cards ───
+    function renderCards() {
+      const filtered = currentCategory === 'All'
+        ? useCases
+        : useCases.filter(uc => uc.category === currentCategory);
 
-    renderFeatured();
-    renderTags();
-    renderGroups();
+      if (filtered.length === 0 && useCases.length > 0) {
+        emptyEl.classList.remove('hidden');
+      } else {
+        emptyEl.classList.add('hidden');
+      }
 
-    // ══════════════════════════════════════════════
-    //  SWIPE MODE (mobile)
-    // ══════════════════════════════════════════════
+      // Capture FLIP state before DOM changes
+      const existingCards = cardGrid.querySelectorAll('.use-card');
+      let flipState = null;
+      if (existingCards.length > 0) {
+        flipState = Flip.getState(existingCards);
+      }
 
-    const allCaseIds = Object.keys(useCases).map(Number);
-    let swipeQueue = [];
-    let swipeIndex = 0;
-
-    function initSwipe() {
-      swipeQueue = [...allCaseIds];
-      swipeIndex = 0;
-      document.getElementById('swipe-done').classList.add('hidden');
-      document.getElementById('swipe-container').classList.remove('hidden');
-      renderSwipeCards();
-      updateSwipeProgress();
-    }
-
-    function renderSwipeCards() {
-      const container = document.getElementById('swipe-container');
-      container.innerHTML = '';
-      if (swipeIndex >= swipeQueue.length) { showSwipeDone(); return; }
-      const indices = [swipeIndex + 1, swipeIndex].filter(i => i < swipeQueue.length);
-      indices.forEach(idx => {
-        const id = swipeQueue[idx];
-        const uc = useCases[id];
-        const isTop = idx === swipeIndex;
+      cardGrid.innerHTML = '';
+      filtered.forEach(uc => {
         const card = document.createElement('div');
-        card.className = 'swipe-card';
-        card.id = `swipe-${id}`;
-        if (!isTop) {
-          card.style.transform = 'scale(0.95) translateY(8px)';
-          card.style.opacity = '0.7';
-          card.style.zIndex = '1';
-        } else {
-          card.style.zIndex = '10';
-        }
-        const isProactive = uc.type === 'proactive';
+        card.className = 'use-card';
+        card.dataset.id = uc.id;
+        card.dataset.category = uc.category || '';
         card.innerHTML = `
-          <div class="overlay-yes swipe-overlay">Yes</div>
-          <div class="overlay-no swipe-overlay">Nope</div>
-          <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium mb-4 ${isProactive ? 'badge-proactive' : 'badge-reactive'}" style="align-self:flex-start">
-            <span class="w-2 h-2 rounded-full ${isProactive ? 'bg-amber-400' : 'bg-teal-400'}"></span>
-            ${isProactive ? 'Proactive' : 'Reactive'}
-          </span>
-          <h3 class="text-xl font-semibold text-stone-900 mb-3 leading-tight">${uc.title}</h3>
-          <p class="text-base text-stone-500 leading-relaxed flex-1">${uc.desc}</p>
+          <div class="card-header">
+            <div class="card-title">${escHtml(uc.title || '')}</div>
+            <span class="badge ${uc.type === 'Proactive' ? 'badge-proactive' : 'badge-reactive'}">
+              ${escHtml(uc.type || '')}
+            </span>
+          </div>
+          <div class="card-desc">${escHtml(uc.description || '')}</div>
+          ${isAdmin ? `
+          <div class="card-admin">
+            <button class="btn-edit" onclick="editCard('${uc.id}')">Edit</button>
+            <button class="btn-delete" onclick="deleteCard('${uc.id}', '${escHtml(uc.title || '')}')">Delete</button>
+          </div>` : ''}
         `;
-        if (isTop) setupDrag(card, id);
-        container.appendChild(card);
+        cardGrid.appendChild(card);
       });
+
+      // Animate with FLIP if we had previous state
+      if (flipState) {
+        Flip.from(flipState, {
+          duration: 0.5,
+          ease: 'power2.inOut',
+          stagger: 0.03,
+          absolute: true,
+          onEnter: elements => gsap.fromTo(elements,
+            { opacity: 0, scale: 0.8 },
+            { opacity: 1, scale: 1, duration: 0.4 }
+          ),
+          onLeave: elements => gsap.to(elements,
+            { opacity: 0, scale: 0.8, duration: 0.3 }
+          )
+        });
+      } else {
+        // Initial load: fade in
+        gsap.fromTo(
+          cardGrid.querySelectorAll('.use-card'),
+          { opacity: 0, y: 30 },
+          { opacity: 1, y: 0, duration: 0.4, stagger: 0.04, ease: 'power2.out' }
+        );
+      }
     }
 
-    function setupDrag(card, ucId) {
-      let startX = 0, currentX = 0, isDragging = false;
-      function onStart(e) {
-        isDragging = true;
-        startX = e.type === 'touchstart' ? e.touches[0].clientX : e.clientX;
-        card.classList.add('dragging');
+    // ─── Filter Tabs ───
+    document.getElementById('filter-tabs').addEventListener('click', e => {
+      const tab = e.target.closest('.filter-tab');
+      if (!tab) return;
+
+      document.querySelectorAll('.filter-tab').forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+
+      const newCategory = tab.dataset.category;
+      if (newCategory === currentCategory) return;
+
+      // Capture state BEFORE changing category
+      const existingCards = cardGrid.querySelectorAll('.use-card');
+      const flipState = existingCards.length > 0 ? Flip.getState(existingCards) : null;
+
+      currentCategory = newCategory;
+
+      const filtered = currentCategory === 'All'
+        ? useCases
+        : useCases.filter(uc => uc.category === currentCategory);
+
+      if (filtered.length === 0 && useCases.length > 0) {
+        emptyEl.classList.remove('hidden');
+      } else {
+        emptyEl.classList.add('hidden');
       }
-      function onMove(e) {
-        if (!isDragging) return;
-        const x = e.type === 'touchmove' ? e.touches[0].clientX : e.clientX;
-        currentX = x - startX;
-        card.style.transform = `translateX(${currentX}px) rotate(${currentX * 0.1}deg)`;
-        card.querySelector('.overlay-yes').style.opacity = Math.min(currentX / 100, 1);
-        card.querySelector('.overlay-no').style.opacity = Math.min(-currentX / 100, 1);
+
+      cardGrid.innerHTML = '';
+      filtered.forEach(uc => {
+        const card = document.createElement('div');
+        card.className = 'use-card';
+        card.dataset.id = uc.id;
+        card.dataset.category = uc.category || '';
+        card.innerHTML = `
+          <div class="card-header">
+            <div class="card-title">${escHtml(uc.title || '')}</div>
+            <span class="badge ${uc.type === 'Proactive' ? 'badge-proactive' : 'badge-reactive'}">
+              ${escHtml(uc.type || '')}
+            </span>
+          </div>
+          <div class="card-desc">${escHtml(uc.description || '')}</div>
+          ${isAdmin ? `
+          <div class="card-admin">
+            <button class="btn-edit" onclick="editCard('${uc.id}')">Edit</button>
+            <button class="btn-delete" onclick="deleteCard('${uc.id}', '${escHtml(uc.title || '')}')">Delete</button>
+          </div>` : ''}
+        `;
+        cardGrid.appendChild(card);
+      });
+
+      // Animate new cards in
+      const newCards = cardGrid.querySelectorAll('.use-card');
+      if (flipState && newCards.length > 0) {
+        gsap.fromTo(newCards,
+          { opacity: 0, y: 40, scale: 0.92 },
+          { opacity: 1, y: 0, scale: 1, duration: 0.45, stagger: 0.04, ease: 'power2.out' }
+        );
+      } else if (newCards.length > 0) {
+        gsap.fromTo(newCards,
+          { opacity: 0, y: 30 },
+          { opacity: 1, y: 0, duration: 0.4, stagger: 0.04, ease: 'power2.out' }
+        );
       }
-      function onEnd() {
-        if (!isDragging) return;
-        isDragging = false;
-        card.classList.remove('dragging');
-        if (currentX > 100) {
-          card.classList.add('exit-right');
-          setTimeout(() => advanceSwipe(), 300);
-        } else if (currentX < -100) {
-          card.classList.add('exit-left');
-          setTimeout(() => advanceSwipe(), 300);
+    });
+
+    // ─── Modal: Add/Edit ───
+    fabAdd.addEventListener('click', () => openModal());
+
+    function openModal(uc = null) {
+      document.getElementById('modal-title').textContent = uc ? 'Edit Use Case' : 'Add Use Case';
+      document.getElementById('form-id').value = uc ? uc.id : '';
+      document.getElementById('form-title').value = uc ? uc.title : '';
+      document.getElementById('form-desc').value = uc ? uc.description : '';
+      document.getElementById('form-category').value = uc ? uc.category : '';
+      document.getElementById('form-type').value = uc ? uc.type : '';
+      document.getElementById('form-score').value = uc ? uc.sort_score : 50;
+      modalOverlay.classList.add('open');
+    }
+
+    function closeModal() {
+      modalOverlay.classList.remove('open');
+      useForm.reset();
+    }
+
+    document.getElementById('btn-cancel').addEventListener('click', closeModal);
+    modalOverlay.addEventListener('click', e => {
+      if (e.target === modalOverlay) closeModal();
+    });
+
+    useForm.addEventListener('submit', async e => {
+      e.preventDefault();
+      const id = document.getElementById('form-id').value;
+      const data = {
+        title: document.getElementById('form-title').value.trim(),
+        description: document.getElementById('form-desc').value.trim(),
+        category: document.getElementById('form-category').value,
+        type: document.getElementById('form-type').value,
+        sort_score: parseInt(document.getElementById('form-score').value, 10) || 50,
+        updated_at: firebase.firestore.FieldValue.serverTimestamp()
+      };
+
+      try {
+        if (id) {
+          await db.collection('useCases').doc(id).update(data);
         } else {
-          card.style.transform = '';
-          card.querySelector('.overlay-yes').style.opacity = 0;
-          card.querySelector('.overlay-no').style.opacity = 0;
+          data.created_at = firebase.firestore.FieldValue.serverTimestamp();
+          await db.collection('useCases').add(data);
         }
-        currentX = 0;
+        closeModal();
+      } catch (err) {
+        console.error('Save error:', err);
+        alert('Failed to save. Check console.');
       }
-      card.addEventListener('mousedown', onStart);
-      card.addEventListener('touchstart', onStart, { passive: true });
-      card.addEventListener('touchmove', onMove, { passive: true });
-      card.addEventListener('touchend', onEnd);
-      document.addEventListener('mousemove', onMove);
-      document.addEventListener('touchmove', onMove, { passive: true });
-      document.addEventListener('mouseup', onEnd);
-      document.addEventListener('touchend', onEnd);
+    });
+
+    // ─── Edit / Delete ───
+    function editCard(id) {
+      const uc = useCases.find(u => u.id === id);
+      if (uc) openModal(uc);
     }
 
-    function swipeAction(action) {
-      if (swipeIndex >= swipeQueue.length) return;
-      const id = swipeQueue[swipeIndex];
-      const card = document.getElementById(`swipe-${id}`);
-      if (!card) return;
-      card.classList.add(action === 'shortlist' ? 'exit-right' : 'exit-left');
-      setTimeout(() => advanceSwipe(), 300);
+    function deleteCard(id, title) {
+      if (!confirm(`Delete "${title}"?`)) return;
+      db.collection('useCases').doc(id).delete()
+        .catch(err => {
+          console.error('Delete error:', err);
+          alert('Failed to delete.');
+        });
     }
 
-    function advanceSwipe() {
-      swipeIndex++;
-      updateSwipeProgress();
-      renderSwipeCards();
+    // ─── Helpers ───
+    function escHtml(str) {
+      const d = document.createElement('div');
+      d.textContent = str;
+      return d.innerHTML;
     }
 
-    function updateSwipeProgress() {
-      const total = swipeQueue.length;
-      const done = Math.min(swipeIndex, total);
-      document.getElementById('swipe-progress-text').textContent = `${done} / ${total}`;
-      document.getElementById('swipe-progress-bar').style.width = total > 0 ? `${(done / total) * 100}%` : '0%';
-    }
-
-    function showSwipeDone() {
-      document.getElementById('swipe-container').classList.add('hidden');
-      document.getElementById('swipe-done-text').textContent = `You explored all ${swipeQueue.length} use cases.`;
-      document.getElementById('swipe-done').classList.remove('hidden');
-    }
-
-    // ══════════════════════════════════════════════
-    //  MOBILE AUTO-DETECT
-    // ══════════════════════════════════════════════
-
-    if (window.matchMedia('(max-width: 768px)').matches) {
-      document.body.classList.add('mobile-swipe-active');
-      document.getElementById('swipe-view').classList.remove('hidden');
-      initSwipe();
-    }
+    // ─── Init ───
+    loadUseCases();
   </script>
 </body>
-
 </html>
